@@ -11,8 +11,8 @@ class Color:
 
     def to_str(self, add_rgb=False):
         if add_rgb:
-            return f"rgb({self.r} {self.g} {self.b})"
-        return f"{self.r} {self.g} {self.b}"
+            return f"rgb({self.r},{self.g},{self.b})"
+        return f"{self.r},{self.g},{self.b}"
 
     @staticmethod
     def parse_from_str(in_c: str):
@@ -22,7 +22,7 @@ class Color:
         if c_str.startswith("rgba"):
             c_str = c_str[4:].strip(" ()")
         res = []
-        if len(c_str) == 6:
+        if len(c_str) == 6 and "," not in c_str:
             res = [int(c_str[i:i + 2], 16) for i in (0, 2, 4)]
         else:
             c_str = c_str.replace(",", " ")
@@ -32,5 +32,5 @@ class Color:
                         res += [int(word)]
         if len(res) < 3:
             raise ValueError(
-                f'ERROR: the color {in_c} could not parsed as color, please use HEX or "R,G,B" color format')
+                f'ERROR: the color [{in_c}] could not parsed as color, please use HEX or "R,G,B" color format')
         return Color(res[0], res[1], res[2])

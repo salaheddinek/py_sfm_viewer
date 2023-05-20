@@ -47,7 +47,7 @@ class CameraSubsampleMode(enum.Enum):
             CameraSubsampleMode.DISTANCE_BASED: "the frequency of plotting a camera cone is based on how far those "
                                                 "cones are, subsampling factor refers to this distance in this case",
             CameraSubsampleMode.COUNT_BASED: "in this case, if the subsampling factor is 4 then a cone is display for "
-                                             "each 4 poses provided",
+                                             "each 4 poses provided. If set to 1, then all cones are plotted",
             CameraSubsampleMode.TIMESTAMP_BASED: "a camera cone is plotted when the time since the previous one"
                                                  " is bigger then the subsampling factor"
         }
@@ -56,40 +56,24 @@ class CameraSubsampleMode(enum.Enum):
             print(f"{s_mode.value} => {s_mode.name}: {msg_dict[s_mode]}.")
 
 
-DEFAULT_PARAMS = {
-    "first_camera_color": "rgb(255, 0, 0)",
-    "last_camera_color": "rgb(0, 0, 255)",
-    "view_mode": ViewMode.CONES_AND_LINKS,
-    "camera_cone_size": 0.12,
-    "camera_subsample_mode": CameraSubsampleMode.DISTANCE_BASED,
-    "camera_subsample_factor": 0.05,
-    "available_colormaps": {   # taken from https://webgradients.com/
-        "Ripe_Malinka": "#f093fb 0%, #f5576c 100%",
-        "Itmeo_Branding": "#2af598 0%, #009efd 100%",
-        "Burning_Spring": "#4fb576 0%, #44c489 30%, #28a9ae 46%, #28a2b7 59%, #4c7788 71%, #6c4f63 86%, #432c39 100%",
-    },
-    "colormap_index": -1,
-    "links_size_ratio": 0.05,
-    "version": _version.__version__,
-}
-
 class Params:
     def __init__(self, input_path="", output_path=""):
         self.input_path = input_path
         self.output_path = output_path
         self.configuration = {
-            "first_camera_color": "rgb(255, 0, 0)",
-            "last_camera_color": "rgb(0, 0, 255)",
             "view_mode": ViewMode.CONES_AND_LINKS,
             "camera_cone_size": 0.12,
             "camera_subsample_mode": CameraSubsampleMode.DISTANCE_BASED,
             "camera_subsample_factor": 0.05,
             "available_colormaps": {  # taken from https://webgradients.com/
-                "Ripe_Malinka": "#f093fb 0%, #f5576c 100%",
-                "Itmeo_Branding": "#2af598 0%, #009efd 100%",
-                "Burning_Spring": "#4fb576 0%, #44c489 30%, #28a9ae 46%, #28a2b7 59%, #4c7788 71%, #6c4f63 86%, #432c39 100%",
+                "ripe_malinka": "#f093fb 0%, #f5576c 100%",
+                "itmeo_branding": "#2af598 0%, #009efd 100%",
+                "burning_spring": "#4fb576 0%, #44c489 30%, #28a9ae 46%, #28a2b7 59%, #4c7788 71%, #6c4f63 86%, #432c39 100%",
             },
-            "colormap_index": -1,
+            "colormap_used": "custom",
+            "first_camera_color": "rgb(255,0,0)",
+            "last_camera_color": "rgb(0,0,255)",
+            "display_ascii_art": True,
             "links_size_ratio": 0.05,
             "version": _version.__version__,
         }
@@ -104,14 +88,32 @@ class Params:
             if out_path.suffix.lower() != ".ply":
                 self.output_path = self.output_path.strip() + ".ply"
 
+    def print_info(self):
+        cfg = self.configuration
+        print(f"input path: {self.input_path}")
+        print(f"output path: {self.output_path}")
+        print(f"camera view mode: [{cfg['view_mode'].name}] | camera cone size: [{cfg['camera_cone_size']}]")
+        print(f"camera subsample mode: [{cfg['camera_subsample_mode'].name}] | "
+              f"subsample factor: [{cfg['camera_subsample_factor']}]")
+        print(f"used colormap : [{cfg['colormap_used'].upper()}]")
+        if cfg["colormap_used"] == "custom":
+            print(f"camera color:  first={cfg['first_camera_color']}  =>  last={cfg['last_camera_color']}")
+
+    def update_used_colormap(self, cmap_choice):
+        choice = cmap_choice.strip().lower().replace(" ", "_")
+        if choice == "custom" or choice in self.configuration["available_colormaps"]:
+            self.configuration["colormap_used"] = choice
+        else:
+            raise ValueError(f"unrecognized colormap [{choice}], available colormaps: [{self.available_color_maps()}]")
 
     def load_from_config_file_if_possible(self):
         pass
-def get_params():
-    # save_path = pathlib.Path("/home/buser/xx.json")
-    # with save_path.open("w") as file:
-    #     json.dump(DEFAULT_PARAMS, file)
-    return DEFAULT_PARAMS
+
+    def available_color_maps(self):
+        msg = "custom, ".upper()
+        for c_map in self.configuration["available_colormaps"]:
+            msg += c_map.upper() + ", "
+        return msg[:-2]
 
 
 class DataConsistency:
