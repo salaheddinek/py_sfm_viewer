@@ -2,6 +2,7 @@
 import argparse
 import config
 import color
+import geometry_builder
 
 
 def intro_print(in_art):
@@ -30,10 +31,11 @@ def end_print(in_art):
     if in_art:
         print(end)
 
+
 def run_with_gui(args, params):
     try:
-        import gui
-        v_gui = gui.ViewerGui(args, params)
+        import ui_core
+        v_gui = ui_core.ViewerGui(args, params)
         print("not implemented yet")
     except ImportError:
         raise ImportError('PySide6 python module needs to be installed to use the viewer gui')
@@ -68,6 +70,8 @@ def run_with_command_line(args, params):
     intro_print(args.art)
     params.process_output_path()
     params.print_info()
+    viewer = geometry_builder.GeometryBuilder(params)
+    viewer.write_camera_trajectory_plot()
     end_print(args.art)
 
 
