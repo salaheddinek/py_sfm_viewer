@@ -9,6 +9,7 @@ class Pose:
     @staticmethod
     def pose_from_position_quaternion(timestamp, position, quaternion):
         res = Pose(timestamp)
+        # TODO normalize quaternion
         # Extract the values from Q
         q0 = quaternion[0]
         q1 = quaternion[1]

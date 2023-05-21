@@ -68,7 +68,9 @@ class Params:
             "available_colormaps": {  # taken from https://webgradients.com/
                 "ripe_malinka": "#f093fb 0%, #f5576c 100%",
                 "itmeo_branding": "#2af598 0%, #009efd 100%",
-                "burning_spring": "#4fb576 0%, #44c489 30%, #28a9ae 46%, #28a2b7 59%, #4c7788 71%, #6c4f63 86%, #432c39 100%",
+                "burning_spring": "#4fb576 0%, #44c489 30%, #28a9ae 46%, #28a2b7 59%, "
+                                  "#4c7788 71%, #6c4f63 86%, #432c39 100%",
+                "test": "#f093fb 0%, #00ff99 29%, #f5576c 100%",
             },
             "colormap_used": "custom",
             "first_camera_color": "rgb(255,0,0)",
@@ -105,6 +107,13 @@ class Params:
             self.configuration["colormap_used"] = choice
         else:
             raise ValueError(f"unrecognized colormap [{choice}], available colormaps: [{self.available_color_maps()}]")
+
+    def get_colormap(self):
+        choice = self.configuration["colormap_used"]
+        if choice == "custom":
+            return f"{self.configuration['first_camera_color']} 0%, {self.configuration['last_camera_color']} 100%"
+        else:
+            return self.configuration["available_colormaps"][choice]
 
     def load_from_config_file_if_possible(self):
         pass
