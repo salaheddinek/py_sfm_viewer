@@ -9,12 +9,13 @@ class Pose:
     @staticmethod
     def pose_from_position_quaternion(timestamp, position, quaternion):
         res = Pose(timestamp)
-        # TODO normalize quaternion
+        norm = np.linalg.norm(quaternion)
+        qn = quaternion / norm
         # Extract the values from Q
-        q0 = quaternion[0]
-        q1 = quaternion[1]
-        q2 = quaternion[2]
-        q3 = quaternion[3]
+        q0 = qn[0]
+        q1 = qn[1]
+        q2 = qn[2]
+        q3 = qn[3]
 
         # First row of the rotation matrix
         r00 = 2 * (q0 * q0 + q1 * q1) - 1
@@ -38,3 +39,33 @@ class Pose:
         res.transformation[0:3, 0:3] = rot_matrix
         res.transformation[0:3, 3] = position
         return res
+
+
+class TrajectoryStats:
+    def __init__(self, poses_list):
+        if len(poses_list) == 0:
+            raise ValueError("poses list provided to trajectory stats is empty")
+        for pose in poses_list:
+            if not isinstance(pose, Pose):
+                raise ValueError("the list contains non Pose elements")
+        self.total_distance = 0
+        self.total_time = poses_list[-1].timestamp - poses_list[0].timestamp
+        self.num_poses = len(poses_list)
+        previous_position = poses_list[0].transformation[0:3, 3]
+        self.bounding_box_max = previous_position
+        self.bounding_box_min = previous_position
+        for i in range(1, len(poses_list)):
+            cur_position = poses_list[i].transformation[0:3, 3]
+            self.bounding_box_max = np.maximum(self.bounding_box_max, cur_position)
+            self.bounding_box_min = np.minimum(self.bounding_box_min, cur_position)
+            self.total_distance = np.linalg.norm(cur_position - previous_position)
+            previous_position = cur_position
+
+    def print_stats(self):
+        print(f"number of poses in trajectory: {self.num_poses}")
+        print(f"total timestamp difference: {self.total_time}")
+        print(f"total distance covered by the camera: {self.total_distance}")
+        print(f"trajectory bounding box:  max=[x:{self.bounding_box_max[0]:0.6f}, y:{self.bounding_box_max[1]:0.6f}, "
+              f"z:{self.bounding_box_max[2]:0.6f}]  min=[x:{self.bounding_box_min[0]:0.6f}, "
+              f"y:{self.bounding_box_min[1]:0.6f},  z:{self.bounding_box_min[2]:0.6f}]")
+

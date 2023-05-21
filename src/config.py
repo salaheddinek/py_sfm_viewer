@@ -62,15 +62,19 @@ class Params:
         self.output_path = output_path
         self.configuration = {
             "view_mode": ViewMode.CONES_AND_LINKS,
-            "camera_cone_size": 0.12,
-            "camera_subsample_mode": CameraSubsampleMode.DISTANCE_BASED,
-            "camera_subsample_factor": 0.05,
+            "camera_cone_size": 0.012,
+            "camera_subsample_mode": CameraSubsampleMode.COUNT_BASED,
+            "camera_subsample_factor": 40.0,
             "available_colormaps": {  # taken from https://webgradients.com/
                 "ripe_malinka": "#f093fb 0%, #f5576c 100%",
-                "itmeo_branding": "#2af598 0%, #009efd 100%",
-                "burning_spring": "#4fb576 0%, #44c489 30%, #28a9ae 46%, #28a2b7 59%, "
-                                  "#4c7788 71%, #6c4f63 86%, #432c39 100%",
-                "test": "#f093fb 0%, #00ff99 29%, #f5576c 100%",
+                "gagarin_view": "#69EACB 0%, #EACCF8 48%, #6654F1 100%",
+                "sweet_period": "#3f51b1 0%, #5a55ae 13%, #7b5fac 25%, #8f6aae 38%, #a86aa4 50%, "
+                                "#cc6b8e 62%, #f18271 75%, #f3a469 87%, #f7c978 100%",
+                "red_salvation": "#f43b47 0%, #453a94 100%",
+                "purple_division": "#7028e4 0%, #e5b2ca 100%",
+                "aqua_splash": "#13547a 0%, #80d0c7 100%",
+                "fruit_blend": "#f9d423 0%, #ff4e50 100%",
+                "palo_alto": "#16a085 0%, #f4d03f 100%",
             },
             "colormap_used": "custom",
             "first_camera_color": "rgb(255,0,0)",

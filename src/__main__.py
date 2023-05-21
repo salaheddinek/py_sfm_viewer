@@ -74,6 +74,10 @@ def run_with_command_line(args, params):
     viewer.write_camera_trajectory_plot()
     end_print(args.art)
 
+    # for i, theme in enumerate(params.configuration["available_colormaps"]):
+    #     params.configuration["colormap_used"] = theme
+    #     params.output_path = f'{i}.ply'
+
 
 def str2bool(v):
     if isinstance(v, bool):
