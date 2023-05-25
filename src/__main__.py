@@ -3,6 +3,7 @@ import argparse
 import config
 import color
 import geometry_builder
+import sys
 
 
 def intro_print(in_art):
@@ -35,8 +36,13 @@ def end_print(in_art):
 def run_with_gui(args, params):
     try:
         import ui_core
-        v_gui = ui_core.ViewerGui(args, params)
-        print("not implemented yet")
+        import PySide6.QtWidgets as Qw
+        app = Qw.QApplication(sys.argv)
+        app.setStyle("Fusion")
+        window = ui_core.ViewerGui(args, params)
+
+        window.show()
+        sys.exit(app.exec())
     except ImportError:
         raise ImportError('PySide6 python module needs to be installed to use the viewer gui')
 
