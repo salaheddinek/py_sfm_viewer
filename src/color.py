@@ -10,6 +10,12 @@ class Color:
         self.g = int(round(g, 0))
         self.b = int(round(b, 0))
 
+    def to_hex(self, add_hash_tag=True):
+        hex_color = '%02x%02x%02x' % (self.r, self.g, self.b)
+        if add_hash_tag:
+            return '#' + hex_color
+        return hex_color
+
     def to_str(self, add_rgb=False):
         if add_rgb:
             return f"rgb({self.r},{self.g},{self.b})"
@@ -100,4 +106,11 @@ class ColorGradient:
         res = []
         for i in range(num_of_colors):
             res.append(Color(steps_r[i], steps_g[i], steps_b[i]))
+        return res
+
+    def generate_qt_gradient_str(self):
+        res = "qlineargradient(x1: 0.0, y1: 0.5, x2: 1.0, y2: 0.5"
+        for i, entry in enumerate(self.gradient_desc):
+            res += f", stop: {entry[1]} {entry[0].to_hex()}"
+        res += ");"
         return res

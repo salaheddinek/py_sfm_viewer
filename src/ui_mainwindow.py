@@ -31,35 +31,45 @@ class Ui_MainWindow(object):
         self.verticalLayout_2.setObjectName(u"verticalLayout_2")
         self.gridLayout_3 = QGridLayout()
         self.gridLayout_3.setObjectName(u"gridLayout_3")
-        self.label_5 = QLabel(self.centralwidget)
-        self.label_5.setObjectName(u"label_5")
+        self.line_edit_in_path = QLineEdit(self.centralwidget)
+        self.line_edit_in_path.setObjectName(u"line_edit_in_path")
 
-        self.gridLayout_3.addWidget(self.label_5, 0, 0, 1, 1)
+        self.gridLayout_3.addWidget(self.line_edit_in_path, 0, 1, 1, 1)
 
         self.btn_out_path = QPushButton(self.centralwidget)
         self.btn_out_path.setObjectName(u"btn_out_path")
 
         self.gridLayout_3.addWidget(self.btn_out_path, 1, 2, 1, 1)
 
-        self.line_edit_in_path = QLineEdit(self.centralwidget)
-        self.line_edit_in_path.setObjectName(u"line_edit_in_path")
-
-        self.gridLayout_3.addWidget(self.line_edit_in_path, 0, 1, 1, 1)
-
         self.btn_in_path = QPushButton(self.centralwidget)
         self.btn_in_path.setObjectName(u"btn_in_path")
 
         self.gridLayout_3.addWidget(self.btn_in_path, 0, 2, 1, 1)
+
+        self.label_5 = QLabel(self.centralwidget)
+        self.label_5.setObjectName(u"label_5")
+
+        self.gridLayout_3.addWidget(self.label_5, 0, 0, 1, 1)
+
+        self.line_edit_out_path = QLineEdit(self.centralwidget)
+        self.line_edit_out_path.setObjectName(u"line_edit_out_path")
+
+        self.gridLayout_3.addWidget(self.line_edit_out_path, 1, 1, 1, 1)
 
         self.label_6 = QLabel(self.centralwidget)
         self.label_6.setObjectName(u"label_6")
 
         self.gridLayout_3.addWidget(self.label_6, 1, 0, 1, 1)
 
-        self.line_edit_out_path = QLineEdit(self.centralwidget)
-        self.line_edit_out_path.setObjectName(u"line_edit_out_path")
+        self.btn_suggest_output = QPushButton(self.centralwidget)
+        self.btn_suggest_output.setObjectName(u"btn_suggest_output")
 
-        self.gridLayout_3.addWidget(self.line_edit_out_path, 1, 1, 1, 1)
+        self.gridLayout_3.addWidget(self.btn_suggest_output, 1, 3, 1, 1)
+
+        self.btn_info_input = QToolButton(self.centralwidget)
+        self.btn_info_input.setObjectName(u"btn_info_input")
+
+        self.gridLayout_3.addWidget(self.btn_info_input, 0, 3, 1, 1)
 
 
         self.verticalLayout_2.addLayout(self.gridLayout_3)
@@ -167,50 +177,52 @@ class Ui_MainWindow(object):
 
         self.verticalLayout.addWidget(self.combo_box_colormap)
 
-        self.wid_custom_colors = QGridLayout()
+        self.wid_custom_colors = QWidget(self.groupBox_3)
         self.wid_custom_colors.setObjectName(u"wid_custom_colors")
-        self.btn_first_color = QPushButton(self.groupBox_3)
+        self.gridLayout_2 = QGridLayout(self.wid_custom_colors)
+        self.gridLayout_2.setObjectName(u"gridLayout_2")
+        self.btn_first_color = QPushButton(self.wid_custom_colors)
         self.btn_first_color.setObjectName(u"btn_first_color")
 
-        self.wid_custom_colors.addWidget(self.btn_first_color, 1, 0, 1, 1)
+        self.gridLayout_2.addWidget(self.btn_first_color, 2, 0, 1, 1)
 
         self.horizontalLayout_3 = QHBoxLayout()
         self.horizontalLayout_3.setObjectName(u"horizontalLayout_3")
-        self.label_7 = QLabel(self.groupBox_3)
+        self.label_7 = QLabel(self.wid_custom_colors)
         self.label_7.setObjectName(u"label_7")
 
         self.horizontalLayout_3.addWidget(self.label_7)
 
-        self.line_edit_first_color = QLineEdit(self.groupBox_3)
+        self.line_edit_first_color = QLineEdit(self.wid_custom_colors)
         self.line_edit_first_color.setObjectName(u"line_edit_first_color")
 
         self.horizontalLayout_3.addWidget(self.line_edit_first_color)
 
 
-        self.wid_custom_colors.addLayout(self.horizontalLayout_3, 0, 0, 1, 1)
-
-        self.btn_last_color = QPushButton(self.groupBox_3)
-        self.btn_last_color.setObjectName(u"btn_last_color")
-
-        self.wid_custom_colors.addWidget(self.btn_last_color, 1, 1, 1, 1)
+        self.gridLayout_2.addLayout(self.horizontalLayout_3, 1, 0, 1, 1)
 
         self.horizontalLayout_4 = QHBoxLayout()
         self.horizontalLayout_4.setObjectName(u"horizontalLayout_4")
-        self.label_8 = QLabel(self.groupBox_3)
+        self.label_8 = QLabel(self.wid_custom_colors)
         self.label_8.setObjectName(u"label_8")
 
         self.horizontalLayout_4.addWidget(self.label_8)
 
-        self.line_edit_last_color = QLineEdit(self.groupBox_3)
+        self.line_edit_last_color = QLineEdit(self.wid_custom_colors)
         self.line_edit_last_color.setObjectName(u"line_edit_last_color")
 
         self.horizontalLayout_4.addWidget(self.line_edit_last_color)
 
 
-        self.wid_custom_colors.addLayout(self.horizontalLayout_4, 0, 1, 1, 1)
+        self.gridLayout_2.addLayout(self.horizontalLayout_4, 1, 1, 1, 1)
+
+        self.btn_last_color = QPushButton(self.wid_custom_colors)
+        self.btn_last_color.setObjectName(u"btn_last_color")
+
+        self.gridLayout_2.addWidget(self.btn_last_color, 2, 1, 1, 1)
 
 
-        self.verticalLayout.addLayout(self.wid_custom_colors)
+        self.verticalLayout.addWidget(self.wid_custom_colors)
 
         self.line_edit_view_color = QLineEdit(self.groupBox_3)
         self.line_edit_view_color.setObjectName(u"line_edit_view_color")
@@ -274,10 +286,12 @@ class Ui_MainWindow(object):
 
     def retranslateUi(self, MainWindow):
         MainWindow.setWindowTitle(QCoreApplication.translate("MainWindow", u"MainWindow", None))
-        self.label_5.setText(QCoreApplication.translate("MainWindow", u"Input file", None))
         self.btn_out_path.setText(QCoreApplication.translate("MainWindow", u"Path", None))
         self.btn_in_path.setText(QCoreApplication.translate("MainWindow", u"Path", None))
+        self.label_5.setText(QCoreApplication.translate("MainWindow", u"Input file", None))
         self.label_6.setText(QCoreApplication.translate("MainWindow", u"Output file", None))
+        self.btn_suggest_output.setText(QCoreApplication.translate("MainWindow", u"suggest", None))
+        self.btn_info_input.setText(QCoreApplication.translate("MainWindow", u"...", None))
         self.groupBox.setTitle(QCoreApplication.translate("MainWindow", u"Camera cones and geometry", None))
         self.label.setText(QCoreApplication.translate("MainWindow", u"View mode", None))
         self.label_2.setText(QCoreApplication.translate("MainWindow", u"Cone size", None))
@@ -291,8 +305,8 @@ class Ui_MainWindow(object):
         self.groupBox_3.setTitle(QCoreApplication.translate("MainWindow", u"Camera cone colors", None))
         self.btn_first_color.setText(QCoreApplication.translate("MainWindow", u"Change color", None))
         self.label_7.setText(QCoreApplication.translate("MainWindow", u"First color", None))
-        self.btn_last_color.setText(QCoreApplication.translate("MainWindow", u"Change color", None))
         self.label_8.setText(QCoreApplication.translate("MainWindow", u"Last color", None))
+        self.btn_last_color.setText(QCoreApplication.translate("MainWindow", u"Change color", None))
         self.label_msg_title.setText(QCoreApplication.translate("MainWindow", u"Message Title", None))
         self.label_msg_content.setText(QCoreApplication.translate("MainWindow", u"Message content", None))
         self.btn_ok.setText(QCoreApplication.translate("MainWindow", u"OK  ", None))

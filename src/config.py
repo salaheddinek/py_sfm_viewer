@@ -72,7 +72,14 @@ HELP_INFO = {
     
     "subsample_mode": CameraSubsampleMode.get_subsample_modes_help_message(),
     
-    "view_mode": ViewMode.get_view_modes_help_message()
+    "view_mode": ViewMode.get_view_modes_help_message(),
+
+    "input_path": "input path must be '.txt' file that contains the trajectory in the TUM format:\n\n"
+                  "each line is in the form of <b>[timestamp tx ty tz qx qy qz qw]</b>; where [tx ty tz] represents"
+                  " the position of the frame, and [qc qy qz qw] represent its orientation in the form "
+                  "of a quaternion.\n\nmore info can be found in the following link:\n\n"
+                  "<a href='https://cvg.cit.tum.de/data/datasets/rgbd-dataset/file_formats'>"
+                  "https://cvg.cit.tum.de/data/datasets/rgbd-dataset/file_formats</a>"
 }
 
 
@@ -96,7 +103,7 @@ class Params:
                 "fruit_blend": "#f9d423 0%, #ff4e50 100%",
                 "palo_alto": "#16a085 0%, #f4d03f 100%",
             },
-            "colormap_used": "custom",
+            "colormap_used": "aqua_splash",
             "first_camera_color": "rgb(255,0,0)",
             "last_camera_color": "rgb(0,0,255)",
             "display_ascii_art": True,
