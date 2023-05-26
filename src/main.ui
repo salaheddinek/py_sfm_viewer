@@ -76,6 +76,9 @@
            <property name="minimum">
             <double>0.000100000000000</double>
            </property>
+           <property name="maximum">
+            <double>99999.000000000000000</double>
+           </property>
            <property name="singleStep">
             <double>0.010000000000000</double>
            </property>
@@ -129,8 +132,11 @@
            <property name="minimum">
             <double>0.000100000000000</double>
            </property>
+           <property name="maximum">
+            <double>99999.000000000000000</double>
+           </property>
            <property name="singleStep">
-            <double>0.010000000000000</double>
+            <double>1.000000000000000</double>
            </property>
           </widget>
          </item>
@@ -239,6 +245,26 @@
      </widget>
     </item>
     <item>
+     <widget class="QWidget" name="widget_msg" native="true">
+      <layout class="QVBoxLayout" name="verticalLayout_3">
+       <item>
+        <widget class="QLabel" name="label_msg_title">
+         <property name="text">
+          <string>Message Title</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="label_msg_content">
+         <property name="text">
+          <string>Message content</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item>
      <spacer name="verticalSpacer">
       <property name="orientation">
        <enum>Qt::Vertical</enum>
@@ -269,7 +295,7 @@
       <item>
        <widget class="QPushButton" name="btn_ok">
         <property name="text">
-         <string>OK</string>
+         <string>OK  </string>
         </property>
        </widget>
       </item>

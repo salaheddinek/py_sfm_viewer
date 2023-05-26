@@ -79,6 +79,7 @@ class Ui_MainWindow(object):
         self.dspin_box_cone_size.setObjectName(u"dspin_box_cone_size")
         self.dspin_box_cone_size.setDecimals(4)
         self.dspin_box_cone_size.setMinimum(0.000100000000000)
+        self.dspin_box_cone_size.setMaximum(99999.000000000000000)
         self.dspin_box_cone_size.setSingleStep(0.010000000000000)
 
         self.gridLayout.addWidget(self.dspin_box_cone_size, 1, 1, 1, 1)
@@ -119,7 +120,8 @@ class Ui_MainWindow(object):
         self.dspin_box_subsample_factor.setObjectName(u"dspin_box_subsample_factor")
         self.dspin_box_subsample_factor.setDecimals(4)
         self.dspin_box_subsample_factor.setMinimum(0.000100000000000)
-        self.dspin_box_subsample_factor.setSingleStep(0.010000000000000)
+        self.dspin_box_subsample_factor.setMaximum(99999.000000000000000)
+        self.dspin_box_subsample_factor.setSingleStep(1.000000000000000)
 
         self.gridLayout_4.addWidget(self.dspin_box_subsample_factor, 2, 3, 1, 1)
 
@@ -218,6 +220,23 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_2.addWidget(self.groupBox_3)
 
+        self.widget_msg = QWidget(self.centralwidget)
+        self.widget_msg.setObjectName(u"widget_msg")
+        self.verticalLayout_3 = QVBoxLayout(self.widget_msg)
+        self.verticalLayout_3.setObjectName(u"verticalLayout_3")
+        self.label_msg_title = QLabel(self.widget_msg)
+        self.label_msg_title.setObjectName(u"label_msg_title")
+
+        self.verticalLayout_3.addWidget(self.label_msg_title)
+
+        self.label_msg_content = QLabel(self.widget_msg)
+        self.label_msg_content.setObjectName(u"label_msg_content")
+
+        self.verticalLayout_3.addWidget(self.label_msg_content)
+
+
+        self.verticalLayout_2.addWidget(self.widget_msg)
+
         self.verticalSpacer = QSpacerItem(17, 131, QSizePolicy.Minimum, QSizePolicy.Expanding)
 
         self.verticalLayout_2.addItem(self.verticalSpacer)
@@ -274,7 +293,9 @@ class Ui_MainWindow(object):
         self.label_7.setText(QCoreApplication.translate("MainWindow", u"First color", None))
         self.btn_last_color.setText(QCoreApplication.translate("MainWindow", u"Change color", None))
         self.label_8.setText(QCoreApplication.translate("MainWindow", u"Last color", None))
-        self.btn_ok.setText(QCoreApplication.translate("MainWindow", u"OK", None))
+        self.label_msg_title.setText(QCoreApplication.translate("MainWindow", u"Message Title", None))
+        self.label_msg_content.setText(QCoreApplication.translate("MainWindow", u"Message content", None))
+        self.btn_ok.setText(QCoreApplication.translate("MainWindow", u"OK  ", None))
         self.btn_go_back.setText(QCoreApplication.translate("MainWindow", u"Go back", None))
         self.btn_exit.setText(QCoreApplication.translate("MainWindow", u"Exit", None))
     # retranslateUi

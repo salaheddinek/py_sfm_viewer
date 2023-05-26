@@ -49,9 +49,11 @@ def run_with_gui(args, params):
 
 def run_with_command_line(args, params):
     if args.subsample_mode == -1:
-        return config.CameraSubsampleMode.print_subsample_modes_help_message()
+        print(config.CameraSubsampleMode.get_subsample_modes_help_message())
+        return
     if args.view_mode == -1:
-        return config.ViewMode.print_view_modes_help_message()
+        print(config.ViewMode.get_view_modes_help_message())
+        return
 
     # verifications
     config.DataConsistency.check_view_mode(args.view_mode)

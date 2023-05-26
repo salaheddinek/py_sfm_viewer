@@ -18,15 +18,16 @@ class ViewMode(enum.Enum):
         return msg + "-1:show_modes_help"
 
     @staticmethod
-    def print_view_modes_help_message():
+    def get_view_modes_help_message():
         msg_dict = {
             ViewMode.CONES_AND_LINKS: "display both of camera cones and the links between those cones",
             ViewMode.JUST_CONES: "display camera cones and hide links",
             ViewMode.JUST_LINKS: "display camera links and hide cones"
         }
-        print("available view modes:")
+        msg = "available view modes:\n\n"
         for v_mode in ViewMode:
-            print(f"{v_mode.value} => {v_mode.name}: {msg_dict[v_mode]}.")
+            msg += f"{v_mode.value} => {v_mode.name}: {msg_dict[v_mode]}.\n"
+        return msg
 
 
 class CameraSubsampleMode(enum.Enum):
@@ -42,18 +43,37 @@ class CameraSubsampleMode(enum.Enum):
         return msg + "-1:show_modes_help"
 
     @staticmethod
-    def print_subsample_modes_help_message():
+    def get_subsample_modes_help_message():
         msg_dict = {
             CameraSubsampleMode.DISTANCE_BASED: "the frequency of plotting a camera cone is based on how far those "
                                                 "cones are, subsampling factor refers to this distance in this case",
             CameraSubsampleMode.COUNT_BASED: "in this case, if the subsampling factor is 4 then a cone is display for "
                                              "each 4 poses provided. If set to 1, then all cones are plotted",
             CameraSubsampleMode.TIMESTAMP_BASED: "a camera cone is plotted when the time since the previous one"
-                                                 " is bigger then the subsampling factor"
+                                                 " is bigger then the subsampling factor, "
+                                                 "this uses the timestamps provided in the input text file"
         }
-        print("available camera subsampling modes:")
+        msg = "available camera subsampling modes:\n\n"
         for s_mode in CameraSubsampleMode:
-            print(f"{s_mode.value} => {s_mode.name}: {msg_dict[s_mode]}.")
+            msg += f"{s_mode.value} => {s_mode.name}: {msg_dict[s_mode]}.\n"
+        return msg
+
+
+HELP_INFO = {
+    "cone_size": "the camera cone size determines the height of the cones plotted.\n"
+                 "if this parameters is too big then only one cone will be shown.\n"
+                 "alternatively, if it is too small, then the plotted camera links will be too small to see.",
+    
+    "subsample_factor": "plotting all camera cones of a trajectory, "
+                        "can make it hard to see the real path of the camera. "
+                        "so, hiding some cones (subsampling) is mandatory for a good trajectory plot.\n\n"
+                        "this factor determines how frequent a camera cone is plotted, "
+                        "and its behavior is linked to camera subsampling mode (refer to subsample_mode for more info)",
+    
+    "subsample_mode": CameraSubsampleMode.get_subsample_modes_help_message(),
+    
+    "view_mode": ViewMode.get_view_modes_help_message()
+}
 
 
 class Params:
@@ -120,6 +140,7 @@ class Params:
             return self.configuration["available_colormaps"][choice]
 
     def load_from_config_file_if_possible(self):
+        # TODO implementation needed
         pass
 
     def available_color_maps(self):
@@ -155,6 +176,7 @@ class DataConsistency:
         else:
             if var_value <= 0:
                 raise ValueError(f"{var_name} should be strictly positive, given value: {var_value}")
+
     @staticmethod
     def check_color(in_c):
         if not isinstance(in_c, str):

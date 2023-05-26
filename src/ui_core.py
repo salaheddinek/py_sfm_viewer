@@ -1,3 +1,4 @@
+import config
 from ui_mainwindow import Ui_MainWindow
 import PySide6.QtGui as Qg
 import PySide6.QtCore as Qc
@@ -12,9 +13,6 @@ class ViewerGui(Qw.QMainWindow):
         super(ViewerGui, self).__init__()
         self.i_app = ui_data.qt_icon_from_text_image(ui_data.APP_ICON)
         self.setWindowIcon(self.i_app)
-
-        # self.i = qt_icons.qt_icon_from_text_image(qt_icons.APP_ICON)
-        # self.setWindowIcon(self.i)
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
 
@@ -25,6 +23,12 @@ class ViewerGui(Qw.QMainWindow):
 
     def _connect_signals(self):
         self.ui.btn_exit.clicked.connect(self.close_app)
+        self.ui.btn_info_cone_size.clicked.connect(lambda: self.window_message(config.HELP_INFO["cone_size"], "Info"))
+        self.ui.btn_info_view_mode.clicked.connect(lambda: self.window_message(config.HELP_INFO["view_mode"], "Info"))
+        self.ui.btn_info_subsample_mode.clicked.connect(
+            lambda: self.window_message(config.HELP_INFO["subsample_mode"], "Info"))
+        self.ui.btn_info_subsample_factor.clicked.connect(
+            lambda: self.window_message(config.HELP_INFO["subsample_factor"], "Info"))
 
     def _style_app(self):
         f_id = Qg.QFontDatabase.addApplicationFontFromData(ui_data.text_data_to_bytes(ui_data.FONT_DATA_OPEN_SANS))
@@ -68,3 +72,44 @@ class ViewerGui(Qw.QMainWindow):
 
     def close_app(self):
         self.close()
+
+    def window_message(self, msg, title="Info", minimum_width=800, minimum_height=300):
+        txt = msg.replace("\n", "<br/>")
+
+        used_font = self.font().__copy__()
+        # used_size = used_font.pointSize()
+        # if used_size > 2:
+        #     used_font.setPointSize(used_size - 2)
+        qd = Qw.QDialog(self)
+        qd.setModal(True)
+        qd.setPalette(self.palette())
+        qd.setWindowTitle(title)
+
+        scroll = Qw.QScrollArea()
+        layout = Qw.QVBoxLayout()
+        label = Qw.QLabel(txt, scroll)
+        label.setTextFormat(Qc.Qt.RichText)
+        label.setWordWrap(True)
+        label.setPalette(self.palette())
+        label.setFont(used_font)
+        scroll.setWidget(label)
+        scroll.setWidgetResizable(True)
+        layout.addWidget(scroll)
+        # scroll.setFixedHeight(200)
+        mini_layout = Qw.QHBoxLayout()
+        h_spacer = Qw.QSpacerItem(40, 20, Qw.QSizePolicy.Policy.Expanding, Qw.QSizePolicy.Policy.Minimum)
+        mini_layout.addSpacerItem(h_spacer)
+        btn = Qw.QPushButton(qd)
+        btn.setFont(used_font)
+        btn.setMinimumWidth(btn.minimumWidth())
+        btn.clicked.connect(qd.accept)
+        btn.setText("   OK   ")
+        mini_layout.addWidget(btn)
+        mini_layout.addSpacerItem(h_spacer)
+        layout.addLayout(mini_layout)
+        qd.setMinimumWidth(minimum_width)
+        qd.setMinimumHeight(minimum_height)
+
+        qd.setLayout(layout)
+        qd.show()
+        qd.exec()
