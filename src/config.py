@@ -148,14 +148,18 @@ class Params:
             "last_camera_color": "rgb(0,0,255)",
             "display_ascii_art": True,
             "links_size_ratio": 0.05,
+            "use_gui": True,
             "version": _version.__version__,
         }
 
     def process_output_path(self):
         in_path = pathlib.Path(self.input_path)
         if self.output_path.strip() == "":
-            out_path = in_path.parent / (in_path.stem + "_plot.ply")
-            self.output_path = str(out_path)
+            if self.input_path.strip() == "":
+                self.output_path = "trajectory_plot.ply"
+            else:
+                out_path = in_path.parent / (in_path.stem + "_plot.ply")
+                self.output_path = str(out_path)
         else:
             out_path = pathlib.Path(self.output_path)
             if out_path.suffix.lower() != ".ply":
@@ -262,6 +266,8 @@ class Params:
             raise ValueError(err_msg + " " + str(err))
         if not isinstance(config_dict["display_ascii_art"], bool):
             raise ValueError(err_msg + " 'display_ascii_art' is not a bool type")
+        if not isinstance(config_dict["use_gui"], bool):
+            raise ValueError(err_msg + " 'use_gui' is not a bool type")
         if not isinstance(config_dict["available_colormaps"], dict):
             raise ValueError(err_msg + " 'available_colormaps' is not a dict type")
         for colormap_key in config_dict["available_colormaps"]:

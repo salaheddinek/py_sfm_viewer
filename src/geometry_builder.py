@@ -59,10 +59,8 @@ class GeometryBuilder:
         # save plot as .ply file
         viewer_io.PlotSaver.mesh_ply_saver(self.params.output_path, self.point_cloud, self.vertices)
 
-        print("")
-        print(f"number of camera cones in the plot: {len(cam_indices)}")
         stats = pose.TrajectoryStats(self.poses)
-        stats.print_stats()
+        # stats.print_stats()
         return len(cam_indices), stats
 
     def _subsample_camera_indices(self):

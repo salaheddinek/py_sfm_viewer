@@ -43,8 +43,11 @@ def run_with_gui(args, params):
 
         window.show()
         sys.exit(app.exec())
-    except ImportError:
-        raise ImportError('PySide6 python module needs to be installed to use the viewer gui')
+    except ImportError as err:
+        print(str(err))
+        print("PySide6 python module needs to be installed to use the viewer gui. Reverting back to command line mode. "
+              "use '--gui off' to no longer see this message")
+        run_with_command_line(args, params)
 
 
 def run_with_command_line(args, params):
@@ -74,12 +77,16 @@ def run_with_command_line(args, params):
     params.configuration["first_camera_color"] = first_color.to_str(True)
     params.configuration["last_camera_color"] = last_color.to_str(True)
     params.configuration["display_ascii_art"] = args.art
+    params.configuration["use_gui"] = args.gui
 
     intro_print(args.art)
     params.process_output_path()
     params.print_info()
     viewer = geometry_builder.GeometryBuilder(params)
-    viewer.write_camera_trajectory_plot()
+    num_cones, stats = viewer.write_camera_trajectory_plot()
+    print("")
+    print(f"number of camera cones in the plot: {num_cones}")
+    stats.print_stats()
     end_print(args.art)
     params.save_to_config_file()
 
@@ -91,9 +98,9 @@ def run_with_command_line(args, params):
 def str2bool(v):
     if isinstance(v, bool):
         return v
-    if v.lower() in ('yes', 'true', 't', 'y', '1'):
+    if v.lower() in ('yes', 'on', 'true', 't', 'y', '1'):
         return True
-    elif v.lower() in ('no', 'false', 'f', 'n', '0'):
+    elif v.lower() in ('no', 'off', 'false', 'f', 'n', '0'):
         return False
     else:
         raise argparse.ArgumentTypeError('Boolean value expected, possible values: yes, y, true, 1, no, n, false, 0.')
@@ -111,8 +118,9 @@ def main():
                         type=str, metavar='\b', default="")
     parser.add_argument('-o', '--output', help='path to the output trajectory plot .ply file',
                         type=str, metavar='\b', default="")
-    parser.add_argument('-g', '--gui', help='display a gui to choose parameters (PySide6 needs to be installed)',
-                        type=str2bool, metavar='\b', default=False)
+    parser.add_argument('-g', '--gui', help='display a user interface to edit the parameters '
+                                            '(PySide6 needs to be installed)',
+                        type=str2bool, metavar='\b', default=params.configuration["use_gui"])
     parser.add_argument('-v', '--view_mode', help='the view mode of the camera trajectory plot, possible values: '
                                                   '' + config.ViewMode.get_view_modes_listing(),
                         type=int, metavar='\b', default=params.configuration["view_mode"].value)
