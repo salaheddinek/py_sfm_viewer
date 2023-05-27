@@ -29,54 +29,59 @@ class Ui_MainWindow(object):
         self.centralwidget.setObjectName(u"centralwidget")
         self.verticalLayout_2 = QVBoxLayout(self.centralwidget)
         self.verticalLayout_2.setObjectName(u"verticalLayout_2")
+        self.widget_main = QWidget(self.centralwidget)
+        self.widget_main.setObjectName(u"widget_main")
+        self.verticalLayout_4 = QVBoxLayout(self.widget_main)
+        self.verticalLayout_4.setObjectName(u"verticalLayout_4")
+        self.verticalLayout_4.setContentsMargins(2, 2, 2, 2)
         self.gridLayout_3 = QGridLayout()
         self.gridLayout_3.setObjectName(u"gridLayout_3")
-        self.line_edit_in_path = QLineEdit(self.centralwidget)
+        self.line_edit_in_path = QLineEdit(self.widget_main)
         self.line_edit_in_path.setObjectName(u"line_edit_in_path")
 
         self.gridLayout_3.addWidget(self.line_edit_in_path, 0, 1, 1, 1)
 
-        self.btn_out_path = QPushButton(self.centralwidget)
+        self.btn_out_path = QPushButton(self.widget_main)
         self.btn_out_path.setObjectName(u"btn_out_path")
 
         self.gridLayout_3.addWidget(self.btn_out_path, 1, 2, 1, 1)
 
-        self.btn_in_path = QPushButton(self.centralwidget)
+        self.btn_in_path = QPushButton(self.widget_main)
         self.btn_in_path.setObjectName(u"btn_in_path")
 
         self.gridLayout_3.addWidget(self.btn_in_path, 0, 2, 1, 1)
 
-        self.label_5 = QLabel(self.centralwidget)
+        self.label_5 = QLabel(self.widget_main)
         self.label_5.setObjectName(u"label_5")
 
         self.gridLayout_3.addWidget(self.label_5, 0, 0, 1, 1)
 
-        self.line_edit_out_path = QLineEdit(self.centralwidget)
+        self.line_edit_out_path = QLineEdit(self.widget_main)
         self.line_edit_out_path.setObjectName(u"line_edit_out_path")
 
         self.gridLayout_3.addWidget(self.line_edit_out_path, 1, 1, 1, 1)
 
-        self.label_6 = QLabel(self.centralwidget)
+        self.label_6 = QLabel(self.widget_main)
         self.label_6.setObjectName(u"label_6")
 
         self.gridLayout_3.addWidget(self.label_6, 1, 0, 1, 1)
 
-        self.btn_suggest_output = QPushButton(self.centralwidget)
+        self.btn_suggest_output = QPushButton(self.widget_main)
         self.btn_suggest_output.setObjectName(u"btn_suggest_output")
 
         self.gridLayout_3.addWidget(self.btn_suggest_output, 1, 3, 1, 1)
 
-        self.btn_info_input = QToolButton(self.centralwidget)
+        self.btn_info_input = QToolButton(self.widget_main)
         self.btn_info_input.setObjectName(u"btn_info_input")
 
         self.gridLayout_3.addWidget(self.btn_info_input, 0, 3, 1, 1)
 
 
-        self.verticalLayout_2.addLayout(self.gridLayout_3)
+        self.verticalLayout_4.addLayout(self.gridLayout_3)
 
         self.horizontalLayout = QHBoxLayout()
         self.horizontalLayout.setObjectName(u"horizontalLayout")
-        self.groupBox = QGroupBox(self.centralwidget)
+        self.groupBox = QGroupBox(self.widget_main)
         self.groupBox.setObjectName(u"groupBox")
         self.gridLayout = QGridLayout(self.groupBox)
         self.gridLayout.setObjectName(u"gridLayout")
@@ -122,7 +127,7 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout.addWidget(self.groupBox)
 
-        self.groupBox_2 = QGroupBox(self.centralwidget)
+        self.groupBox_2 = QGroupBox(self.widget_main)
         self.groupBox_2.setObjectName(u"groupBox_2")
         self.gridLayout_4 = QGridLayout(self.groupBox_2)
         self.gridLayout_4.setObjectName(u"gridLayout_4")
@@ -166,9 +171,9 @@ class Ui_MainWindow(object):
         self.horizontalLayout.addWidget(self.groupBox_2)
 
 
-        self.verticalLayout_2.addLayout(self.horizontalLayout)
+        self.verticalLayout_4.addLayout(self.horizontalLayout)
 
-        self.groupBox_3 = QGroupBox(self.centralwidget)
+        self.groupBox_3 = QGroupBox(self.widget_main)
         self.groupBox_3.setObjectName(u"groupBox_3")
         self.verticalLayout = QVBoxLayout(self.groupBox_3)
         self.verticalLayout.setObjectName(u"verticalLayout")
@@ -230,7 +235,10 @@ class Ui_MainWindow(object):
         self.verticalLayout.addWidget(self.line_edit_view_color)
 
 
-        self.verticalLayout_2.addWidget(self.groupBox_3)
+        self.verticalLayout_4.addWidget(self.groupBox_3)
+
+
+        self.verticalLayout_2.addWidget(self.widget_main)
 
         self.widget_msg = QWidget(self.centralwidget)
         self.widget_msg.setObjectName(u"widget_msg")

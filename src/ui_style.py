@@ -327,6 +327,12 @@ QPushButton[cssClass="danger"]:pressed , QToolButton[cssClass="danger"]:pressed 
     background-color: {BTN_DANGER_DARKER_COLOR};
 }}
 
+/* -----+-----+-----+----- */
+QLabel[cssClass="title"]{{
+    font-weight: bold;
+}}
+
+/* -----+-----+-----+----- */
 QScrollArea  {{
     border: 0px solid transparent;
     background-color: {BG_COLOR};

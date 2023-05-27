@@ -33,7 +33,11 @@ class GeometryBuilder:
         self.link_idx = 1
 
         # load poses from file
-        self.poses = viewer_io.TrajectoryLoader.load_poses_from_file_with_tum_format(self.params.input_path)
+        if len(self.poses) == 0:
+            self.poses = viewer_io.TrajectoryLoader.load_poses_from_file_with_tum_format(self.params.input_path)
+
+        if len(self.poses) <= 1:
+            raise ValueError("number of poses must be superior to 1")
 
         # build colors
         gradient_builder = color.ColorGradient(self.params.get_colormap())
@@ -59,6 +63,7 @@ class GeometryBuilder:
         print(f"number of camera cones in the plot: {len(cam_indices)}")
         stats = pose.TrajectoryStats(self.poses)
         stats.print_stats()
+        return len(cam_indices), stats
 
     def _subsample_camera_indices(self):
         length = len(self.poses)

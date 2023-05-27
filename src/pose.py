@@ -61,11 +61,17 @@ class TrajectoryStats:
             self.total_distance = np.linalg.norm(cur_position - previous_position)
             previous_position = cur_position
 
+    def get_stats(self):
+        msg = f"number of poses in trajectory: {self.num_poses}\n"
+        msg += f"total timestamp difference: {self.total_time}\n"
+        msg += f"total distance covered by the camera: {self.total_distance}\n"
+        msg += f"trajectory bounding box:\n"
+        msg += f"  * max=[x:{self.bounding_box_max[0]:0.6f}, y:{self.bounding_box_max[1]:0.6f}, " \
+               f"z:{self.bounding_box_max[2]:0.6f}]\n"
+        msg += f"  * min=[x:{self.bounding_box_min[0]:0.6f}, " \
+               f"y:{self.bounding_box_min[1]:0.6f},  z:{self.bounding_box_min[2]:0.6f}]\n"
+        return msg
+
     def print_stats(self):
-        print(f"number of poses in trajectory: {self.num_poses}")
-        print(f"total timestamp difference: {self.total_time}")
-        print(f"total distance covered by the camera: {self.total_distance}")
-        print(f"trajectory bounding box:  max=[x:{self.bounding_box_max[0]:0.6f}, y:{self.bounding_box_max[1]:0.6f}, "
-              f"z:{self.bounding_box_max[2]:0.6f}]  min=[x:{self.bounding_box_min[0]:0.6f}, "
-              f"y:{self.bounding_box_min[1]:0.6f},  z:{self.bounding_box_min[2]:0.6f}]")
+        print(self.get_stats())
 
