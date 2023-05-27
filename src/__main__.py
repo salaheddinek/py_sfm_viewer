@@ -81,6 +81,7 @@ def run_with_command_line(args, params):
     viewer = geometry_builder.GeometryBuilder(params)
     viewer.write_camera_trajectory_plot()
     end_print(args.art)
+    params.save_to_config_file()
 
     # for i, theme in enumerate(params.configuration["available_colormaps"]):
     #     params.configuration["colormap_used"] = theme
@@ -101,6 +102,8 @@ def str2bool(v):
 def main():
     params = config.Params()
     params.load_from_config_file_if_possible()
+    # params.delete_config_file_if_exists()
+    # print("config file path: " + str(config.Params.get_config_file_path()))
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter,
                                      description='parse camera poses from a txt file with TUM format, and outputs '
                                                  'a trajectory plot as .ply file')

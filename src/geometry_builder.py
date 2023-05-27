@@ -23,7 +23,7 @@ class GeometryBuilder:
         self.link_idx = 1
 
     def write_camera_trajectory_plot(self):
-        # TODO implement params consistency check
+        self.params.check_configuration_consistency(self.params.configuration)
 
         # init
         self.point_cloud.clear()

@@ -1,1 +1,2 @@
-__version__ = "2.1.4"
+__version__ = "2.2.1"
+__package__ = "py_SFM_viewer"

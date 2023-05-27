@@ -26,6 +26,7 @@ class TrajectoryWorker(Qc.QObject):
             msg = f"result saved to:\n{self.app_params.output_path}\n"
             msg += f"number of camera cones plotted: {num_cones}\n\n"
             msg += stats.get_stats()
+            self.app_params.save_to_config_file()
             self.show_msg.emit("Process finished successfully\n", msg, False)
         except ValueError as err:
             msg = "type: ValueError\nmessage: " + str(err)
@@ -286,9 +287,9 @@ class ViewerGui(Qw.QMainWindow):
         self.ui.btn_go_back.setHidden(hide_go_back_button)
 
     def _go_back_to_main_window(self):
-        self.ui.widget_main.setHidden(False)
         self.ui.widget_msg.setHidden(True)
         self.ui.btn_go_back.setHidden(True)
+        self.ui.widget_main.setHidden(False)
         self.ui.btn_ok.setHidden(False)
         self.update_ui_elements()
 

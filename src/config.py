@@ -3,6 +3,8 @@ import json
 import pathlib
 import color
 import _version
+import appdirs
+import copy
 
 
 class ViewMode(enum.Enum):
@@ -83,6 +85,44 @@ HELP_INFO = {
 }
 
 
+class DataConsistency:
+    @staticmethod
+    def check_view_mode(in_data):
+        try:
+            ViewMode(in_data)
+        except ValueError as err:
+            raise ValueError(f"{err}, possible values: {[v_mode.value for v_mode in ViewMode]}")
+
+    @staticmethod
+    def check_subsample_mode(in_data):
+        try:
+            CameraSubsampleMode(in_data)
+        except ValueError as err:
+            raise ValueError(f"{err}, possible values: {[v_mode.value for v_mode in CameraSubsampleMode]}")
+
+    @staticmethod
+    def check_positive_float(var_name, var_value):
+        if not isinstance(var_value, (int, float)):
+            raise TypeError(f"{var_name} should be float, {var_value} is {type(var_value)}")
+        else:
+            if var_value <= 0:
+                raise ValueError(f"{var_name} should be strictly positive, given value: {var_value}")
+
+    @staticmethod
+    def check_color(in_c):
+        if not isinstance(in_c, str):
+            raise TypeError(f"expect str type when color parsing, {in_c} is a {type(in_c)}")
+        else:
+            color.Color.parse_from_str(in_c)
+
+    @staticmethod
+    def check_color_gradient(in_c):
+        if not isinstance(in_c, str):
+            raise TypeError(f"expect str type when color gradient parsing, {in_c} is a {type(in_c)}")
+        else:
+            color.ColorGradient(in_c)
+
+
 class Params:
     def __init__(self, input_path="", output_path=""):
         self.input_path = input_path
@@ -147,8 +187,51 @@ class Params:
             return self.configuration["available_colormaps"][choice]
 
     def load_from_config_file_if_possible(self):
-        # TODO implementation needed
-        pass
+        config_path = self.get_config_file_path()
+        if not config_path.is_file():
+            return
+        with config_path.open("r") as file_obj:
+            try:
+                new_config = json.load(file_obj)
+                self.check_configuration_consistency(new_config)
+            except ValueError as err:
+                print(f"{str(err)}, loading config from disk aborted")
+                self.delete_config_file_if_exists()
+                return
+        new_config["colormap_used"] = new_config["colormap_used"].strip().lower().replace(" ", "_")
+        colormaps = new_config["available_colormaps"]
+        new_colormaps = {}
+        for key, value in colormaps.items():
+            new_colormaps[key.strip().lower().replace(" ", "_")] = value
+        new_config["available_colormaps"] = colormaps
+        new_config["view_mode"] = ViewMode(new_config["view_mode"])
+        new_config["camera_subsample_mode"] = CameraSubsampleMode(new_config["camera_subsample_mode"])
+        new_config["version"] = _version.__version__
+        self.configuration = new_config
+
+    def save_to_config_file(self):
+        config_path = self.get_config_file_path()
+        config_dir_path = config_path.parent
+        config_dir_path.mkdir(parents=True, exist_ok=True)
+        try:
+            self.check_configuration_consistency(self.configuration)
+        except ValueError as err:
+            print(f"{str(err)}, saving config to disk aborted")
+            return
+        save_config = copy.deepcopy(self.configuration)
+        save_config["view_mode"] = save_config["view_mode"].value
+        save_config["camera_subsample_mode"] = save_config["camera_subsample_mode"].value
+        with config_path.open("w") as file_obj:
+            json.dump(save_config, file_obj, indent=4)
+
+    @staticmethod
+    def get_config_file_path():
+        app_dir = appdirs.user_config_dir(_version.__package__)
+        return pathlib.Path(app_dir) / "config.json"
+
+    @staticmethod
+    def delete_config_file_if_exists():
+        Params.get_config_file_path().unlink(missing_ok=True)
 
     def available_color_maps(self):
         msg = "custom, ".upper()
@@ -156,37 +239,40 @@ class Params:
             msg += c_map.upper() + ", "
         return msg[:-2]
 
-
-class DataConsistency:
     @staticmethod
-    def check_view_mode(in_data):
-        if not isinstance(in_data, int):
-            raise TypeError(f"Camera_view_mode should be integer, {in_data} is {type(in_data)}")
-        else:
-            possible_values = [v_mode.value for v_mode in ViewMode]
-            if in_data not in possible_values:
-                raise ValueError(f"invalid Camera_view_mode value, possible values: {possible_values}")
+    def check_configuration_consistency(config_dict:dict):
+        default_config = Params().configuration
+        err_msg = "bad configuration dict,"
+        for key in config_dict:
+            if key not in default_config:
+                raise ValueError(f"{err_msg} {key} is not a valid key")
 
-    @staticmethod
-    def check_subsample_mode(in_data):
-        if not isinstance(in_data, int):
-            raise TypeError(f"Camera_subsample_mode should be integer, {in_data} is {type(in_data)}")
-        else:
-            possible_values = [s_mode.value for s_mode in CameraSubsampleMode]
-            if in_data not in possible_values:
-                raise ValueError(f"invalid Camera_subsample_mode value, possible values: {possible_values}")
+        for key in default_config:
+            if key not in config_dict:
+                raise ValueError(f"{err_msg} missing {key}")
+        try:
+            DataConsistency.check_subsample_mode(config_dict["camera_subsample_mode"])
+            DataConsistency.check_view_mode(config_dict["view_mode"])
+            DataConsistency.check_positive_float("camera_cone_size", config_dict["camera_cone_size"])
+            DataConsistency.check_positive_float("camera_subsample_factor", config_dict["camera_subsample_factor"])
+            DataConsistency.check_positive_float("links_size_ratio", config_dict["links_size_ratio"])
+            DataConsistency.check_color(config_dict["first_camera_color"])
+            DataConsistency.check_color(config_dict["last_camera_color"])
+        except ValueError as err:
+            raise ValueError(err_msg + " " + str(err))
+        if not isinstance(config_dict["display_ascii_art"], bool):
+            raise ValueError(err_msg + " 'display_ascii_art' is not a bool type")
+        if not isinstance(config_dict["available_colormaps"], dict):
+            raise ValueError(err_msg + " 'available_colormaps' is not a dict type")
+        for colormap_key in config_dict["available_colormaps"]:
+            if not isinstance(colormap_key, str):
+                raise ValueError(f"{err_msg} {colormap_key} is not a valid colormap key type, str is needed")
+            try:
+                DataConsistency.check_color_gradient(config_dict["available_colormaps"][colormap_key])
+            except ValueError as err:
+                raise ValueError(err_msg + " " + str(err))
 
-    @staticmethod
-    def check_positive_float(var_name, var_value):
-        if not isinstance(var_value, (int, float)):
-            raise TypeError(f"{var_name} should be float, {var_value} is {type(var_value)}")
-        else:
-            if var_value <= 0:
-                raise ValueError(f"{var_name} should be strictly positive, given value: {var_value}")
+        if config_dict["colormap_used"] != "custom" and \
+                config_dict["colormap_used"] not in config_dict["available_colormaps"]:
+            raise ValueError(f"{err_msg} {config_dict['colormap_used']} is not a valid colormap choice")
 
-    @staticmethod
-    def check_color(in_c):
-        if not isinstance(in_c, str):
-            raise TypeError(f"expect str type when color parsing, {in_c} is a {type(in_c)}")
-        else:
-            color.Color.parse_from_str(in_c)
