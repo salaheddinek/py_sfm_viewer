@@ -72,16 +72,23 @@ python3 -m pip install pyside6==6.2.3
 The application can be launched by running the following command line:
 
 ```commandline
-python3 src/__main__.py
+python3 src/__main__.py --gui on
+```
+
+Moreover, here is an example of running the application via command line.
+
+```commandline
+python3 src/__main__.py --gui off --input data/traj_150_small_walk.txt --cone_size 0.005 -s 1 --factor 25 --colormap red_salvation
 ```
 
 However, we advise using the next method to run the application.
   
 ## Run as a script
 
-All the file dependencies can be wrapped in a single file (except `numpy` and `pyside6`). This includes the application theme, icons and font. 
+All the file dependencies can be wrapped in a single file (except `numpy` and `pyside6`). 
+This includes the application theme, icons and font. 
 To achieve this, python built-in Zipapp module is used. 
-So, one simply needs to run the following script which takes care of wrapping the application:
+So, running the following command takes care of wrapping the application:
 
 ```commandline
 python3 bundle/bundle_using_zipapp.py
@@ -122,6 +129,8 @@ The following image show the user interface (app version 2.2.3):
 <p align="center">
 <img src="images/gui_example.png" />
 </p>
+
+
 
 # Meshlab
 
