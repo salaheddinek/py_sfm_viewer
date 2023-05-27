@@ -7,6 +7,8 @@ import copy
 class TrajectoryLoader:
     @staticmethod
     def load_poses_from_file_with_tum_format(file_path_str):
+        if file_path_str.strip() == "":
+            raise IOError(f"trajectory file was not provided")
         file_path = pathlib.Path(file_path_str)
         if not file_path.is_file():
             raise IOError(f"trajectory file could not be found at: {file_path_str}")
