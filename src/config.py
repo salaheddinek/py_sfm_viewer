@@ -3,6 +3,8 @@ import json
 import pathlib
 import color
 import _version
+import appdirs
+import copy
 
 
 class ViewMode(enum.Enum):
@@ -18,15 +20,16 @@ class ViewMode(enum.Enum):
         return msg + "-1:show_modes_help"
 
     @staticmethod
-    def print_view_modes_help_message():
+    def get_view_modes_help_message():
         msg_dict = {
             ViewMode.CONES_AND_LINKS: "display both of camera cones and the links between those cones",
             ViewMode.JUST_CONES: "display camera cones and hide links",
             ViewMode.JUST_LINKS: "display camera links and hide cones"
         }
-        print("available view modes:")
+        msg = "available view modes:\n\n"
         for v_mode in ViewMode:
-            print(f"{v_mode.value} => {v_mode.name}: {msg_dict[v_mode]}.")
+            msg += f"{v_mode.value} => {v_mode.name}: {msg_dict[v_mode]}.\n"
+        return msg
 
 
 class CameraSubsampleMode(enum.Enum):
@@ -42,18 +45,82 @@ class CameraSubsampleMode(enum.Enum):
         return msg + "-1:show_modes_help"
 
     @staticmethod
-    def print_subsample_modes_help_message():
+    def get_subsample_modes_help_message():
         msg_dict = {
             CameraSubsampleMode.DISTANCE_BASED: "the frequency of plotting a camera cone is based on how far those "
                                                 "cones are, subsampling factor refers to this distance in this case",
             CameraSubsampleMode.COUNT_BASED: "in this case, if the subsampling factor is 4 then a cone is display for "
                                              "each 4 poses provided. If set to 1, then all cones are plotted",
             CameraSubsampleMode.TIMESTAMP_BASED: "a camera cone is plotted when the time since the previous one"
-                                                 " is bigger then the subsampling factor"
+                                                 " is bigger then the subsampling factor, "
+                                                 "this uses the timestamps provided in the input text file"
         }
-        print("available camera subsampling modes:")
+        msg = "available camera subsampling modes:\n\n"
         for s_mode in CameraSubsampleMode:
-            print(f"{s_mode.value} => {s_mode.name}: {msg_dict[s_mode]}.")
+            msg += f"{s_mode.value} => {s_mode.name}: {msg_dict[s_mode]}.\n"
+        return msg
+
+
+HELP_INFO = {
+    "cone_size": "the camera cone size determines the height of the cones plotted.\n"
+                 "if this parameters is too big then only one cone will be shown.\n"
+                 "alternatively, if it is too small, then the plotted camera links will be too small to see.",
+    
+    "subsample_factor": "plotting all camera cones of a trajectory, "
+                        "can make it hard to see the real path of the camera. "
+                        "so, hiding some cones (subsampling) is mandatory for a good trajectory plot.\n\n"
+                        "this factor determines how frequent a camera cone is plotted, "
+                        "and its behavior is linked to camera subsampling mode (refer to subsample_mode for more info)",
+    
+    "subsample_mode": CameraSubsampleMode.get_subsample_modes_help_message(),
+    
+    "view_mode": ViewMode.get_view_modes_help_message(),
+
+    "input_path": "input path must be '.txt' file that contains the trajectory in the TUM format:\n\n"
+                  "each line is in the form of <b>[timestamp tx ty tz qx qy qz qw]</b>; where [tx ty tz] represents"
+                  " the position of the frame, and [qc qy qz qw] represent its orientation in the form "
+                  "of a quaternion.\n\nmore info can be found in the following link:\n\n"
+                  "<a href='https://cvg.cit.tum.de/data/datasets/rgbd-dataset/file_formats'>"
+                  "https://cvg.cit.tum.de/data/datasets/rgbd-dataset/file_formats</a>"
+}
+
+
+class DataConsistency:
+    @staticmethod
+    def check_view_mode(in_data):
+        try:
+            ViewMode(in_data)
+        except ValueError as err:
+            raise ValueError(f"{err}, possible values: {[v_mode.value for v_mode in ViewMode]}")
+
+    @staticmethod
+    def check_subsample_mode(in_data):
+        try:
+            CameraSubsampleMode(in_data)
+        except ValueError as err:
+            raise ValueError(f"{err}, possible values: {[v_mode.value for v_mode in CameraSubsampleMode]}")
+
+    @staticmethod
+    def check_positive_float(var_name, var_value):
+        if not isinstance(var_value, (int, float)):
+            raise TypeError(f"{var_name} should be float, {var_value} is {type(var_value)}")
+        else:
+            if var_value <= 0:
+                raise ValueError(f"{var_name} should be strictly positive, given value: {var_value}")
+
+    @staticmethod
+    def check_color(in_c):
+        if not isinstance(in_c, str):
+            raise TypeError(f"expect str type when color parsing, {in_c} is a {type(in_c)}")
+        else:
+            color.Color.parse_from_str(in_c)
+
+    @staticmethod
+    def check_color_gradient(in_c):
+        if not isinstance(in_c, str):
+            raise TypeError(f"expect str type when color gradient parsing, {in_c} is a {type(in_c)}")
+        else:
+            color.ColorGradient(in_c)
 
 
 class Params:
@@ -76,19 +143,23 @@ class Params:
                 "fruit_blend": "#f9d423 0%, #ff4e50 100%",
                 "palo_alto": "#16a085 0%, #f4d03f 100%",
             },
-            "colormap_used": "custom",
+            "colormap_used": "aqua_splash",
             "first_camera_color": "rgb(255,0,0)",
             "last_camera_color": "rgb(0,0,255)",
             "display_ascii_art": True,
             "links_size_ratio": 0.05,
+            "use_gui": True,
             "version": _version.__version__,
         }
 
     def process_output_path(self):
         in_path = pathlib.Path(self.input_path)
         if self.output_path.strip() == "":
-            out_path = in_path.parent / (in_path.stem + "_plot.ply")
-            self.output_path = str(out_path)
+            if self.input_path.strip() == "":
+                self.output_path = "trajectory_plot.ply"
+            else:
+                out_path = in_path.parent / (in_path.stem + "_plot.ply")
+                self.output_path = str(out_path)
         else:
             out_path = pathlib.Path(self.output_path)
             if out_path.suffix.lower() != ".ply":
@@ -120,7 +191,51 @@ class Params:
             return self.configuration["available_colormaps"][choice]
 
     def load_from_config_file_if_possible(self):
-        pass
+        config_path = self.get_config_file_path()
+        if not config_path.is_file():
+            return
+        with config_path.open("r") as file_obj:
+            try:
+                new_config = json.load(file_obj)
+                self.check_configuration_consistency(new_config)
+            except ValueError as err:
+                print(f"{str(err)}, loading config from disk aborted")
+                self.delete_config_file_if_exists()
+                return
+        new_config["colormap_used"] = new_config["colormap_used"].strip().lower().replace(" ", "_")
+        colormaps = new_config["available_colormaps"]
+        new_colormaps = {}
+        for key, value in colormaps.items():
+            new_colormaps[key.strip().lower().replace(" ", "_")] = value
+        new_config["available_colormaps"] = colormaps
+        new_config["view_mode"] = ViewMode(new_config["view_mode"])
+        new_config["camera_subsample_mode"] = CameraSubsampleMode(new_config["camera_subsample_mode"])
+        new_config["version"] = _version.__version__
+        self.configuration = new_config
+
+    def save_to_config_file(self):
+        config_path = self.get_config_file_path()
+        config_dir_path = config_path.parent
+        config_dir_path.mkdir(parents=True, exist_ok=True)
+        try:
+            self.check_configuration_consistency(self.configuration)
+        except ValueError as err:
+            print(f"{str(err)}, saving config to disk aborted")
+            return
+        save_config = copy.deepcopy(self.configuration)
+        save_config["view_mode"] = save_config["view_mode"].value
+        save_config["camera_subsample_mode"] = save_config["camera_subsample_mode"].value
+        with config_path.open("w") as file_obj:
+            json.dump(save_config, file_obj, indent=4)
+
+    @staticmethod
+    def get_config_file_path():
+        app_dir = appdirs.user_config_dir(_version.__package__)
+        return pathlib.Path(app_dir) / "config.json"
+
+    @staticmethod
+    def delete_config_file_if_exists():
+        Params.get_config_file_path().unlink(missing_ok=True)
 
     def available_color_maps(self):
         msg = "custom, ".upper()
@@ -128,36 +243,42 @@ class Params:
             msg += c_map.upper() + ", "
         return msg[:-2]
 
+    @staticmethod
+    def check_configuration_consistency(config_dict:dict):
+        default_config = Params().configuration
+        err_msg = "bad configuration dict,"
+        for key in config_dict:
+            if key not in default_config:
+                raise ValueError(f"{err_msg} {key} is not a valid key")
 
-class DataConsistency:
-    @staticmethod
-    def check_view_mode(in_data):
-        if not isinstance(in_data, int):
-            raise TypeError(f"Camera_view_mode should be integer, {in_data} is {type(in_data)}")
-        else:
-            possible_values = [v_mode.value for v_mode in ViewMode]
-            if in_data not in possible_values:
-                raise ValueError(f"invalid Camera_view_mode value, possible values: {possible_values}")
+        for key in default_config:
+            if key not in config_dict:
+                raise ValueError(f"{err_msg} missing {key}")
+        try:
+            DataConsistency.check_subsample_mode(config_dict["camera_subsample_mode"])
+            DataConsistency.check_view_mode(config_dict["view_mode"])
+            DataConsistency.check_positive_float("camera_cone_size", config_dict["camera_cone_size"])
+            DataConsistency.check_positive_float("camera_subsample_factor", config_dict["camera_subsample_factor"])
+            DataConsistency.check_positive_float("links_size_ratio", config_dict["links_size_ratio"])
+            DataConsistency.check_color(config_dict["first_camera_color"])
+            DataConsistency.check_color(config_dict["last_camera_color"])
+        except ValueError as err:
+            raise ValueError(err_msg + " " + str(err))
+        if not isinstance(config_dict["display_ascii_art"], bool):
+            raise ValueError(err_msg + " 'display_ascii_art' is not a bool type")
+        if not isinstance(config_dict["use_gui"], bool):
+            raise ValueError(err_msg + " 'use_gui' is not a bool type")
+        if not isinstance(config_dict["available_colormaps"], dict):
+            raise ValueError(err_msg + " 'available_colormaps' is not a dict type")
+        for colormap_key in config_dict["available_colormaps"]:
+            if not isinstance(colormap_key, str):
+                raise ValueError(f"{err_msg} {colormap_key} is not a valid colormap key type, str is needed")
+            try:
+                DataConsistency.check_color_gradient(config_dict["available_colormaps"][colormap_key])
+            except ValueError as err:
+                raise ValueError(err_msg + " " + str(err))
 
-    @staticmethod
-    def check_subsample_mode(in_data):
-        if not isinstance(in_data, int):
-            raise TypeError(f"Camera_subsample_mode should be integer, {in_data} is {type(in_data)}")
-        else:
-            possible_values = [s_mode.value for s_mode in CameraSubsampleMode]
-            if in_data not in possible_values:
-                raise ValueError(f"invalid Camera_subsample_mode value, possible values: {possible_values}")
+        if config_dict["colormap_used"] != "custom" and \
+                config_dict["colormap_used"] not in config_dict["available_colormaps"]:
+            raise ValueError(f"{err_msg} {config_dict['colormap_used']} is not a valid colormap choice")
 
-    @staticmethod
-    def check_positive_float(var_name, var_value):
-        if not isinstance(var_value, (int, float)):
-            raise TypeError(f"{var_name} should be float, {var_value} is {type(var_value)}")
-        else:
-            if var_value <= 0:
-                raise ValueError(f"{var_name} should be strictly positive, given value: {var_value}")
-    @staticmethod
-    def check_color(in_c):
-        if not isinstance(in_c, str):
-            raise TypeError(f"expect str type when color parsing, {in_c} is a {type(in_c)}")
-        else:
-            color.Color.parse_from_str(in_c)
