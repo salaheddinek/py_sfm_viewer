@@ -77,7 +77,6 @@ def run_with_command_line(args, params):
     params.configuration["first_camera_color"] = first_color.to_str(True)
     params.configuration["last_camera_color"] = last_color.to_str(True)
     params.configuration["display_ascii_art"] = args.art
-    params.configuration["use_gui"] = args.gui
 
     intro_print(args.art)
     params.process_output_path()
@@ -146,6 +145,7 @@ def main():
     parser.add_argument('-a', '--art', help='Display ASCII art',
                         type=str2bool, metavar='\b', default=params.configuration["display_ascii_art"])
     args = parser.parse_args()
+    params.configuration["use_gui"] = args.gui
     if args.gui:
         run_with_gui(args, params)
     else:
