@@ -22,10 +22,12 @@ class TrajectoryWorker(Qc.QObject):
         viewer = geometry_builder.GeometryBuilder(self.app_params)
         err_title = "ERROR: process halted\n"
         try:
-            num_cones, stats = viewer.write_camera_trajectory_plot()
+            res = viewer.write_camera_trajectory_plot()
             msg = f"result saved to:\n{self.app_params.output_path}\n"
-            msg += f"number of camera cones plotted: {num_cones}\n\n"
-            msg += stats.get_stats()
+            msg += f"number of camera cones plotted: {res['num_cones_plotted']}\n\n"
+            if self.app_params.configuration["automatic_cone_size"]:
+                msg += f"estimated cone size: {res['used_cone_size']:g}\n"
+            msg += res['trajectory_stats'].get_stats()
             self.app_params.save_to_config_file()
             self.show_msg.emit("Process finished successfully\n", msg, False)
         except ValueError as err:
@@ -58,8 +60,8 @@ class ViewerGui(Qw.QMainWindow):
         self.setWindowTitle("SFM Viewer")
         self._style_app()
         self._init()
-        self._connect_signals()
         self.update_ui_elements()
+        self._connect_signals()
         # self.update_ui_elements()
 
     def _connect_signals(self):
@@ -75,6 +77,7 @@ class ViewerGui(Qw.QMainWindow):
         self.ui.btn_out_path.clicked.connect(self._look_for_output_path)
         self.ui.btn_suggest_output.clicked.connect(self._suggest_output_path)
 
+        self.ui.check_box_auto_cone.clicked.connect(self._automatic_cone_size_changed)
         self.ui.combo_box_colormap.currentIndexChanged.connect(self._color_map_changed)
         self.ui.btn_first_color.clicked.connect(self._get_first_camera_color)
         self.ui.btn_last_color.clicked.connect(self._get_last_camera_color)
@@ -125,11 +128,7 @@ class ViewerGui(Qw.QMainWindow):
         self.ui.line_edit_view_color.setReadOnly(True)
         self.ui.widget_msg.setHidden(True)
         self.ui.btn_go_back.setHidden(True)
-
-        self.ui.line_edit_in_path.setText(str(self.app_params.input_path))
         self.app_params.process_output_path()
-        self.ui.line_edit_out_path.setText(str(self.app_params.output_path))
-
         available_view_modes = []
         for vm in config.ViewMode:
             available_view_modes.append(vm.name)
@@ -155,6 +154,7 @@ class ViewerGui(Qw.QMainWindow):
             self.ui.combo_box_colormap.addItem(c_map_icon, colormap)
 
     def _look_for_input_path(self):
+        self.retrieve_info_from_ui()
         target_file = ""
         if self.app_params.input_path != "":
             target_file = str(pathlib.Path(self.app_params.input_path))
@@ -162,9 +162,10 @@ class ViewerGui(Qw.QMainWindow):
         name = name[0]
         if name != "":
             self.app_params.input_path = name
-            self.ui.line_edit_in_path.setText(name)
+        self.update_ui_elements()
 
     def _look_for_output_path(self):
+        self.retrieve_info_from_ui()
         target_file = ""
         if self.app_params.output_path != "":
             target_file = str(pathlib.Path(self.app_params.output_path))
@@ -172,42 +173,59 @@ class ViewerGui(Qw.QMainWindow):
         name = name[0]
         if name != "":
             self.app_params.output_path = name
-            self.ui.line_edit_out_path.setText(name)
+        self.ui.line_edit_out_path.setText(name)
+
+    def _automatic_cone_size_changed(self):
+        self.retrieve_info_from_ui()
+        if self.ui.check_box_auto_cone.isChecked():
+            self.app_params.configuration["automatic_cone_size"] = True
+        else:
+            self.app_params.configuration["automatic_cone_size"] = False
+        self.update_ui_elements()
 
     def _suggest_output_path(self):
-        self.app_params.input_path = self.ui.line_edit_in_path.text()
+        self.retrieve_info_from_ui()
         if self.app_params.input_path == "":
             return
         self.app_params.output_path = ""
         self.app_params.process_output_path()
-        self.ui.line_edit_out_path.setText(self.app_params.output_path)
+        self.update_ui_elements()
 
     def _get_first_camera_color(self):
+        self.retrieve_info_from_ui()
         qt_color = Qw.QColorDialog.getColor()
         try:
             res_color = color.Color(qt_color.red(), qt_color.green(), qt_color.blue())
             self.app_params.configuration["first_camera_color"] = res_color.to_str(True)
-            self.update_ui_elements()
         except ValueError:
             print(f"could not parse first camera color from given color")
+        self.update_ui_elements()
 
     def _get_last_camera_color(self):
+        self.retrieve_info_from_ui()
         qt_color = Qw.QColorDialog.getColor()
         try:
             res_color = color.Color(qt_color.red(), qt_color.green(), qt_color.blue())
             self.app_params.configuration["last_camera_color"] = res_color.to_str(True)
-            self.update_ui_elements()
         except ValueError:
             print(f"could not parse last camera color from given color")
+        self.update_ui_elements()
 
     def _color_map_changed(self):
-        self.app_params.configuration["colormap_used"] = self.ui.combo_box_colormap.currentText()
+        self.retrieve_info_from_ui()
         self.update_ui_elements()
 
     def update_ui_elements(self):
+        self.ui.line_edit_in_path.setText(self.app_params.input_path)
+        self.ui.line_edit_out_path.setText(self.app_params.output_path)
         cfg = self.app_params.configuration
         self.ui.combo_box_view_mode.setCurrentIndex(cfg["view_mode"].value)
         self.ui.dspin_box_cone_size.setValue(cfg["camera_cone_size"])
+        self.ui.check_box_auto_cone.setChecked(cfg["automatic_cone_size"])
+        if cfg["automatic_cone_size"]:
+            self.ui.dspin_box_cone_size.setDisabled(True)
+        else:
+            self.ui.dspin_box_cone_size.setDisabled(False)
         self.ui.combo_box_subsample_mode.setCurrentIndex(cfg["camera_subsample_mode"].value)
         self.ui.dspin_box_subsample_factor.setValue(cfg["camera_subsample_factor"])
 
@@ -237,21 +255,22 @@ class ViewerGui(Qw.QMainWindow):
         qt_gradient = c_map.generate_qt_gradient_str()
         self.ui.line_edit_view_color.setStyleSheet(f"background-color: {qt_gradient}")
 
-    def _run_trajectory_plot_algorithm(self):
+    def retrieve_info_from_ui(self):
         self.app_params.input_path = self.ui.line_edit_in_path.text()
         self.app_params.output_path = self.ui.line_edit_out_path.text()
-        self.app_params.process_output_path()
         cfg = self.app_params.configuration
         cfg["view_mode"] = config.ViewMode(self.ui.combo_box_view_mode.currentIndex())
         cfg["camera_cone_size"] = self.ui.dspin_box_cone_size.value()
+        cfg["automatic_cone_size"] = self.ui.check_box_auto_cone.isChecked()
         cfg["camera_subsample_mode"] = config.CameraSubsampleMode(self.ui.combo_box_subsample_mode.currentIndex())
         cfg["camera_subsample_factor"] = self.ui.dspin_box_subsample_factor.value()
         cfg["colormap_used"] = self.ui.combo_box_colormap.currentText()
         cfg["first_camera_color"] = color.Color.parse_from_str(self.ui.line_edit_first_color.text()).to_str(True)
         cfg["last_camera_color"] = color.Color.parse_from_str(self.ui.line_edit_last_color.text()).to_str(True)
         self.app_params.configuration = cfg
-        # self.app_params.print_info()
 
+    def _run_trajectory_plot_algorithm(self):
+        self.retrieve_info_from_ui()
         # viewer = geometry_builder.GeometryBuilder(self.app_params)
         # viewer.write_camera_trajectory_plot()
         self.display_in_app_message("Processing ...",
@@ -272,11 +291,6 @@ class ViewerGui(Qw.QMainWindow):
 
         # start the thread
         self.thread.start()
-
-    def tmp_p(self):
-        import time
-        time.sleep(2)
-        self._go_back_to_main_window()
 
     def display_in_app_message(self, title, message, hide_go_back_button=False):
         self.ui.label_msg_title.setText(title)
