@@ -83,7 +83,7 @@ class ViewerGui(Qw.QMainWindow):
         self.ui.btn_go_back.clicked.connect(self._go_back_to_main_window)
 
     def _style_app(self):
-        f_id = Qg.QFontDatabase.addApplicationFontFromData(ui_data.text_data_to_bytes(ui_data.FONT_DATA_OPEN_SANS))
+        f_id = Qg.QFontDatabase.addApplicationFontFromData(ui_data.text_data_to_bytes(ui_data.FONT_DATA_WORK_SANS))
         if f_id < 0:
             print("Error loading font from data")
         families = Qg.QFontDatabase.applicationFontFamilies(f_id)

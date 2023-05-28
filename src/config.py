@@ -36,6 +36,7 @@ class CameraSubsampleMode(enum.Enum):
     DISTANCE_BASED = 0
     COUNT_BASED = 1
     TIMESTAMP_BASED = 2
+    CONE_SIZE_BASED = 3
 
     @staticmethod
     def get_subsample_modes_listing():
@@ -48,12 +49,17 @@ class CameraSubsampleMode(enum.Enum):
     def get_subsample_modes_help_message():
         msg_dict = {
             CameraSubsampleMode.DISTANCE_BASED: "the frequency of plotting a camera cone is based on how far those "
-                                                "cones are, subsampling factor refers to this distance in this case",
+                                                "cones are, the minimum distance of two plotted camera cones is equal "
+                                                "to the subsampling factor",
             CameraSubsampleMode.COUNT_BASED: "in this case, if the subsampling factor is 4 then a cone is display for "
                                              "each 4 poses provided. If set to 1, then all cones are plotted",
             CameraSubsampleMode.TIMESTAMP_BASED: "a camera cone is plotted when the time since the previous one"
                                                  " is bigger then the subsampling factor, "
-                                                 "this uses the timestamps provided in the input text file"
+                                                 "this uses the timestamps provided in the input text file",
+            CameraSubsampleMode.CONE_SIZE_BASED: "the minimum distance of two plotted camera cones is equal to "
+                                                 "subsampling factor multiplied by the camera size "
+                                                 "(min_dist = factor * cone_size), this is the recommended subsampling"
+                                                 " mode to use with a factor of 2.5"
         }
         msg = "available camera subsampling modes:\n\n"
         for s_mode in CameraSubsampleMode:
@@ -130,8 +136,8 @@ class Params:
         self.configuration = {
             "view_mode": ViewMode.CONES_AND_LINKS,
             "camera_cone_size": 0.012,
-            "camera_subsample_mode": CameraSubsampleMode.COUNT_BASED,
-            "camera_subsample_factor": 40.0,
+            "camera_subsample_mode": CameraSubsampleMode.CONE_SIZE_BASED,
+            "camera_subsample_factor": 2.5,
             "available_colormaps": {  # taken from https://webgradients.com/
                 "ripe_malinka": "#f093fb 0%, #f5576c 100%",
                 "gagarin_view": "#69EACB 0%, #EACCF8 48%, #6654F1 100%",
