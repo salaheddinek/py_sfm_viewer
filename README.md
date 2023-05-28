@@ -78,7 +78,7 @@ python3 src/__main__.py --gui on
 Moreover, here is an example of running the application via command line.
 
 ```commandline
-python3 src/__main__.py --gui off --input data/traj_150_small_walk.txt --cone_size 0.005 -s 1 --factor 25 --colormap red_salvation
+python3 src/__main__.py --gui off --input data/traj_150_small_walk.txt --cone_size 0.005 -s 3 --factor 2.5 --colormap red_salvation
 ```
 
 However, we advise using the next method to run the application.

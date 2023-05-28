@@ -64,15 +64,17 @@ class GeometryBuilder:
         return len(cam_indices), stats
 
     def _subsample_camera_indices(self):
+        import copy
         length = len(self.poses)
         indices = [0]
         previous_timestamp = self.poses[0].timestamp
         previous_index = 0
-        previous_position = self.poses[0].transformation[3, 0:3]
+        previous_position = self.poses[0].transformation[0:3, 3]
+        subsample_method = self.params.configuration["camera_subsample_mode"]
+        factor = self.params.configuration["camera_subsample_factor"]
+        cone_size = self.params.configuration["camera_cone_size"]
         for i in range(1, length):
-            subsample_method = self.params.configuration["camera_subsample_mode"]
-            factor = self.params.configuration["camera_subsample_factor"]
-            cur_pose = self.poses[i]
+            cur_pose = copy.deepcopy(self.poses[i])
             if subsample_method == config.CameraSubsampleMode.TIMESTAMP_BASED:
                 if cur_pose.timestamp - previous_timestamp >= factor:
                     indices.append(i)
@@ -82,9 +84,13 @@ class GeometryBuilder:
                     indices.append(i)
                     previous_index = i
             elif subsample_method == config.CameraSubsampleMode.DISTANCE_BASED:
-                if np.linalg.norm(cur_pose.transformation[3, 0:3] - previous_position) >= factor:
+                if np.linalg.norm(cur_pose.transformation[0:3, 3] - previous_position) >= factor:
                     indices.append(i)
-                    previous_position = cur_pose.transformation[3, 0:3]
+                    previous_position = cur_pose.transformation[0:3, 3]
+            elif subsample_method == config.CameraSubsampleMode.CONE_SIZE_BASED:
+                if np.linalg.norm(cur_pose.transformation[0:3, 3] - previous_position) >= factor * cone_size:
+                    indices.append(i)
+                    previous_position = cur_pose.transformation[0:3, 3]
         if indices[-1] != length - 1:
             indices.append(length - 1)
         return indices
