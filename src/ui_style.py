@@ -269,10 +269,15 @@ QRadioButton::indicator {{
 QCheckBox::indicator:pressed , QRadioButton::indicator:pressed {{ background-color: {FRAME_COLOR}; }}
 
 QCheckBox::indicator:checked {{
-    background-color: qradialgradient(spread:repeat,  cx:0.5, cy:0.5, radius:0.5, fx:0.5, fy:0.5,
-    stop:0 {BOX_FOCUS_COLOR}, stop:0.499 {BOX_FOCUS_COLOR},  stop:0.5 {BOX_CHECKED_COLOR}, stop:1 {BOX_CHECKED_COLOR}); 
-    /* background-color: qlineargradient(spread: pad, x0:0.0, y0:0.0, x1:0.0, y1:1.0, stop: 0.5 red, stop: 1 qlineargradient(spread: pad, x0:0.0, y0:0.0, x1:1.0, y1:0.0, stop: 0.5 green, stop: 1 yellow)); */
+     /* background-color: qconicalgradient( cx:0.5, cy:0.5, angle:00,
+                                       stop:0 {BOX_CHECKED_COLOR}, stop:0.074 {BOX_CHECKED_COLOR}, stop:0.075 {BOX_FOCUS_COLOR}, stop:0.175 {BOX_FOCUS_COLOR}, stop:0.176 {BOX_CHECKED_COLOR},
+                                       stop:0.325 {BOX_CHECKED_COLOR}, stop:0.326 {BOX_FOCUS_COLOR}, stop:0.425 {BOX_FOCUS_COLOR}, stop:0.426 {BOX_CHECKED_COLOR},
+                                       stop:0.575 {BOX_CHECKED_COLOR}, stop:0.576 {BOX_FOCUS_COLOR}, stop:0.675 {BOX_FOCUS_COLOR}, stop:0.676 {BOX_CHECKED_COLOR},
+                                       stop:0.825 {BOX_CHECKED_COLOR}, stop:0.826 {BOX_FOCUS_COLOR}, stop:0.925 {BOX_FOCUS_COLOR}, stop:0.926 {BOX_CHECKED_COLOR}); */
+    /* background: qlineargradient(spread: reflect, x1:0.0, y1:0.0, x2:0.99, y2:0.99,  stop:0 {BOX_CHECKED_COLOR}, stop:1 {BOX_FOCUS_COLOR}); */
 
+    background: qlineargradient(spread: reflect, x1:0.0, y1:0.0, x2:0.99, y2:0.99, stop:0 {BOX_CHECKED_COLOR}, stop:0.4 {BOX_CHECKED_COLOR}, stop:0.41 {BOX_FOCUS_COLOR},
+                                stop:0.6 {BOX_FOCUS_COLOR}, stop:0.61 {BOX_CHECKED_COLOR}, stop:1 {BOX_CHECKED_COLOR},);
 }}
 QRadioButton::indicator:checked {{
     background-color: qradialgradient(spread:repeat,  cx:0.5, cy:0.5, radius:0.6, fx:0.5, fy:0.5,
