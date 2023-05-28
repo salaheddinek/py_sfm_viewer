@@ -21,6 +21,7 @@ class GeometryBuilder:
         self.poses = []
         self.cam_idx = 1
         self.link_idx = 1
+        self.cone_size_used = params.configuration["camera_cone_size"]
 
     def write_camera_trajectory_plot(self):
         self.params.check_configuration_consistency(self.params.configuration)
@@ -31,6 +32,7 @@ class GeometryBuilder:
         self.camera_colors.clear()
         self.cam_idx = 1
         self.link_idx = 1
+        self.cone_size_used = self.params.configuration["camera_cone_size"]  # could change is auto_cone is set to true
 
         # load poses from file
         if len(self.poses) == 0:
@@ -38,6 +40,12 @@ class GeometryBuilder:
 
         if len(self.poses) <= 1:
             raise ValueError("number of poses must be superior to 1")
+
+        stats = pose.TrajectoryStats(self.poses)
+
+        # estimate camera cone size if needed
+        if self.params.configuration["automatic_cone_size"]:
+            self._estimate_camera_cone_size(stats)
 
         # build colors
         gradient_builder = color.ColorGradient(self.params.get_colormap())
@@ -59,9 +67,13 @@ class GeometryBuilder:
         # save plot as .ply file
         viewer_io.PlotSaver.mesh_ply_saver(self.params.output_path, self.point_cloud, self.vertices)
 
-        stats = pose.TrajectoryStats(self.poses)
         # stats.print_stats()
-        return len(cam_indices), stats
+        res_dict = {
+            "num_cones_plotted": len(cam_indices),
+            "used_cone_size": self.cone_size_used,
+            "trajectory_stats": stats,
+        }
+        return res_dict
 
     def _subsample_camera_indices(self):
         import copy
@@ -72,7 +84,6 @@ class GeometryBuilder:
         previous_position = self.poses[0].transformation[0:3, 3]
         subsample_method = self.params.configuration["camera_subsample_mode"]
         factor = self.params.configuration["camera_subsample_factor"]
-        cone_size = self.params.configuration["camera_cone_size"]
         for i in range(1, length):
             cur_pose = copy.deepcopy(self.poses[i])
             if subsample_method == config.CameraSubsampleMode.TIMESTAMP_BASED:
@@ -88,17 +99,21 @@ class GeometryBuilder:
                     indices.append(i)
                     previous_position = cur_pose.transformation[0:3, 3]
             elif subsample_method == config.CameraSubsampleMode.CONE_SIZE_BASED:
-                if np.linalg.norm(cur_pose.transformation[0:3, 3] - previous_position) >= factor * cone_size:
+                if np.linalg.norm(cur_pose.transformation[0:3, 3] - previous_position) >= factor * self.cone_size_used:
                     indices.append(i)
                     previous_position = cur_pose.transformation[0:3, 3]
         if indices[-1] != length - 1:
             indices.append(length - 1)
         return indices
 
+    def _estimate_camera_cone_size(self, traj_stats):
+        max_scene_distance = np.linalg.norm(traj_stats.bounding_box_max - traj_stats.bounding_box_min)
+        self.cone_size_used = max_scene_distance * self.params.configuration["auto_cone_size_factor"]
+
     def _make_camera_cone(self, camera_index):
         cam_color = self.camera_colors[camera_index]
         trans = self.poses[camera_index].transformation
-        c_size = self.params.configuration["camera_cone_size"]
+        c_size = self.cone_size_used
         cam_resize = np.array([c_size, c_size, c_size, 1.0])
         num_points = len(self.point_cloud)
         points = np.array([[0, 0, 0, 1], [0.75, 0.5, 1, 1], [-0.75, 0.5, 1, 1], [-0.75, -0.5, 1, 1], [0.75, -0.5, 1, 1],
@@ -203,7 +218,7 @@ class GeometryBuilder:
         cam2 = self.poses[camera_index].transformation.dot(zero)
 
         rot = self._get_rotation_between_two_cam_centers(cam2[:-1], cam1[:-1])
-        r = self.params.configuration["links_size_ratio"] * self.params.configuration["camera_cone_size"]
+        r = self.params.configuration["links_size_ratio"] * self.cone_size_used
         point_cloud_size = len(self.point_cloud)
         for i in range(num_points):
             cam = cam1

@@ -15,10 +15,10 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QFont, QFontDatabase, QGradient, QIcon,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
-from PySide6.QtWidgets import (QApplication, QComboBox, QDoubleSpinBox, QGridLayout,
-    QGroupBox, QHBoxLayout, QLabel, QLineEdit,
-    QMainWindow, QPushButton, QSizePolicy, QSpacerItem,
-    QToolButton, QVBoxLayout, QWidget)
+from PySide6.QtWidgets import (QApplication, QCheckBox, QComboBox, QDoubleSpinBox,
+    QGridLayout, QGroupBox, QHBoxLayout, QLabel,
+    QLineEdit, QMainWindow, QPushButton, QSizePolicy,
+    QSpacerItem, QToolButton, QVBoxLayout, QWidget)
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -85,11 +85,6 @@ class Ui_MainWindow(object):
         self.groupBox.setObjectName(u"groupBox")
         self.gridLayout = QGridLayout(self.groupBox)
         self.gridLayout.setObjectName(u"gridLayout")
-        self.label = QLabel(self.groupBox)
-        self.label.setObjectName(u"label")
-
-        self.gridLayout.addWidget(self.label, 0, 0, 1, 1)
-
         self.dspin_box_cone_size = QDoubleSpinBox(self.groupBox)
         self.dspin_box_cone_size.setObjectName(u"dspin_box_cone_size")
         self.dspin_box_cone_size.setDecimals(4)
@@ -98,11 +93,6 @@ class Ui_MainWindow(object):
         self.dspin_box_cone_size.setSingleStep(0.010000000000000)
 
         self.gridLayout.addWidget(self.dspin_box_cone_size, 1, 1, 1, 1)
-
-        self.label_2 = QLabel(self.groupBox)
-        self.label_2.setObjectName(u"label_2")
-
-        self.gridLayout.addWidget(self.label_2, 1, 0, 1, 1)
 
         self.combo_box_view_mode = QComboBox(self.groupBox)
         self.combo_box_view_mode.setObjectName(u"combo_box_view_mode")
@@ -114,6 +104,16 @@ class Ui_MainWindow(object):
 
         self.gridLayout.addWidget(self.combo_box_view_mode, 0, 1, 1, 1)
 
+        self.label_2 = QLabel(self.groupBox)
+        self.label_2.setObjectName(u"label_2")
+
+        self.gridLayout.addWidget(self.label_2, 1, 0, 1, 1)
+
+        self.label = QLabel(self.groupBox)
+        self.label.setObjectName(u"label")
+
+        self.gridLayout.addWidget(self.label, 0, 0, 1, 1)
+
         self.btn_info_view_mode = QToolButton(self.groupBox)
         self.btn_info_view_mode.setObjectName(u"btn_info_view_mode")
 
@@ -123,6 +123,11 @@ class Ui_MainWindow(object):
         self.btn_info_cone_size.setObjectName(u"btn_info_cone_size")
 
         self.gridLayout.addWidget(self.btn_info_cone_size, 1, 2, 1, 1)
+
+        self.check_box_auto_cone = QCheckBox(self.groupBox)
+        self.check_box_auto_cone.setObjectName(u"check_box_auto_cone")
+
+        self.gridLayout.addWidget(self.check_box_auto_cone, 2, 0, 1, 3)
 
 
         self.horizontalLayout.addWidget(self.groupBox)
@@ -140,15 +145,20 @@ class Ui_MainWindow(object):
 
         self.gridLayout_4.addWidget(self.dspin_box_subsample_factor, 2, 3, 1, 1)
 
-        self.btn_info_subsample_mode = QToolButton(self.groupBox_2)
-        self.btn_info_subsample_mode.setObjectName(u"btn_info_subsample_mode")
-
-        self.gridLayout_4.addWidget(self.btn_info_subsample_mode, 1, 4, 1, 1)
-
         self.label_4 = QLabel(self.groupBox_2)
         self.label_4.setObjectName(u"label_4")
 
         self.gridLayout_4.addWidget(self.label_4, 2, 0, 1, 1)
+
+        self.btn_info_subsample_factor = QToolButton(self.groupBox_2)
+        self.btn_info_subsample_factor.setObjectName(u"btn_info_subsample_factor")
+
+        self.gridLayout_4.addWidget(self.btn_info_subsample_factor, 2, 4, 1, 1)
+
+        self.btn_info_subsample_mode = QToolButton(self.groupBox_2)
+        self.btn_info_subsample_mode.setObjectName(u"btn_info_subsample_mode")
+
+        self.gridLayout_4.addWidget(self.btn_info_subsample_mode, 1, 4, 1, 1)
 
         self.combo_box_subsample_mode = QComboBox(self.groupBox_2)
         self.combo_box_subsample_mode.setObjectName(u"combo_box_subsample_mode")
@@ -157,15 +167,14 @@ class Ui_MainWindow(object):
 
         self.gridLayout_4.addWidget(self.combo_box_subsample_mode, 1, 3, 1, 1)
 
-        self.btn_info_subsample_factor = QToolButton(self.groupBox_2)
-        self.btn_info_subsample_factor.setObjectName(u"btn_info_subsample_factor")
-
-        self.gridLayout_4.addWidget(self.btn_info_subsample_factor, 2, 4, 1, 1)
-
         self.label_3 = QLabel(self.groupBox_2)
         self.label_3.setObjectName(u"label_3")
 
         self.gridLayout_4.addWidget(self.label_3, 0, 0, 2, 2)
+
+        self.verticalSpacer_2 = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
+
+        self.gridLayout_4.addItem(self.verticalSpacer_2, 3, 3, 1, 1)
 
 
         self.horizontalLayout.addWidget(self.groupBox_2)
@@ -301,14 +310,15 @@ class Ui_MainWindow(object):
         self.btn_suggest_output.setText(QCoreApplication.translate("MainWindow", u"suggest", None))
         self.btn_info_input.setText(QCoreApplication.translate("MainWindow", u"...", None))
         self.groupBox.setTitle(QCoreApplication.translate("MainWindow", u"Camera cones and geometry", None))
-        self.label.setText(QCoreApplication.translate("MainWindow", u"View mode", None))
         self.label_2.setText(QCoreApplication.translate("MainWindow", u"Cone size", None))
+        self.label.setText(QCoreApplication.translate("MainWindow", u"View mode", None))
         self.btn_info_view_mode.setText(QCoreApplication.translate("MainWindow", u"...", None))
         self.btn_info_cone_size.setText(QCoreApplication.translate("MainWindow", u"...", None))
+        self.check_box_auto_cone.setText(QCoreApplication.translate("MainWindow", u"Automatically estimate camera cone size", None))
         self.groupBox_2.setTitle(QCoreApplication.translate("MainWindow", u"Camera cones subsampling", None))
-        self.btn_info_subsample_mode.setText(QCoreApplication.translate("MainWindow", u"...", None))
         self.label_4.setText(QCoreApplication.translate("MainWindow", u"Subsample factor", None))
         self.btn_info_subsample_factor.setText(QCoreApplication.translate("MainWindow", u"...", None))
+        self.btn_info_subsample_mode.setText(QCoreApplication.translate("MainWindow", u"...", None))
         self.label_3.setText(QCoreApplication.translate("MainWindow", u"Subsample mode", None))
         self.groupBox_3.setTitle(QCoreApplication.translate("MainWindow", u"Camera cone colors", None))
         self.btn_first_color.setText(QCoreApplication.translate("MainWindow", u"Change color", None))

@@ -72,6 +72,7 @@ def run_with_command_line(args, params):
     params.output_path = args.output
     params.configuration["view_mode"] = config.ViewMode(args.view_mode)
     params.configuration["camera_cone_size"] = args.cone_size
+    params.configuration["automatic_cone_size"] = args.auto_cone
     params.configuration["camera_subsample_mode"] = config.CameraSubsampleMode(args.subsample_mode)
     params.configuration["camera_subsample_factor"] = args.factor
     params.configuration["first_camera_color"] = first_color.to_str(True)
@@ -82,10 +83,12 @@ def run_with_command_line(args, params):
     params.process_output_path()
     params.print_info()
     viewer = geometry_builder.GeometryBuilder(params)
-    num_cones, stats = viewer.write_camera_trajectory_plot()
+    res = viewer.write_camera_trajectory_plot()
     print("")
-    print(f"number of camera cones in the plot: {num_cones}")
-    stats.print_stats()
+    print(f"number of camera cones in the plot: {res['num_cones_plotted']}")
+    if params.configuration["automatic_cone_size"]:
+        print(f"estimated cone size: {res['used_cone_size']:g}")
+    res['trajectory_stats'].print_stats()
     end_print(args.art)
     params.save_to_config_file()
 
@@ -107,8 +110,8 @@ def str2bool(v):
 
 def main():
     params = config.Params()
-    params.load_from_config_file_if_possible()
     # params.delete_config_file_if_exists()
+    params.load_from_config_file_if_possible()
     # print("config file path: " + str(config.Params.get_config_file_path()))
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter,
                                      description='parse camera poses from a txt file with TUM format, and outputs '
@@ -123,16 +126,18 @@ def main():
     parser.add_argument('-v', '--view_mode', help='the view mode of the camera trajectory plot, possible values: '
                                                   '' + config.ViewMode.get_view_modes_listing(),
                         type=int, metavar='\b', default=params.configuration["view_mode"].value)
-    parser.add_argument('-n', '--cone_size', help='the camera cone height',
+    parser.add_argument('-c', '--cone_size', help='the camera cone height. Ignored if auto_cone set to true',
                         type=float, metavar='\b', default=params.configuration["camera_cone_size"])
+    parser.add_argument('-A', '--auto_cone', help='automatically estimate the camera coen size from the trajectory',
+                        type=str2bool, metavar='\b', default=params.configuration["automatic_cone_size"])
     parser.add_argument('-s', '--subsample_mode', help='the subsample mode dictates the policy of how frequent a camera'
                                                        ' cone is plotted, possible values:'
                                                        ' ' + config.CameraSubsampleMode.get_subsample_modes_listing(),
                         type=int, metavar='\b', default=params.configuration["camera_subsample_mode"].value)
-    parser.add_argument('-t', '--factor', help='the camera subsample factor, the behavior of this parameter is linked '
+    parser.add_argument('-F', '--factor', help='the camera subsample factor, the behavior of this parameter is linked '
                                                'to the subsample mode chosen by the user',
                         type=float, metavar='\b', default=params.configuration["camera_subsample_factor"])
-    parser.add_argument('-m', '--colormap', help='the color map to use for the camera cone colors. If left as custom,'
+    parser.add_argument('-C', '--colormap', help='the color map to use for the camera cone colors. If left as custom,'
                                                  ' then cone color is interpolated between first and last camera color.'
                                                  ' Available colormaps: ' + params.available_color_maps(),
                         type=str, metavar='\b', default=params.configuration["colormap_used"])

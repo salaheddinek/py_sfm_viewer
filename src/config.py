@@ -33,10 +33,10 @@ class ViewMode(enum.Enum):
 
 
 class CameraSubsampleMode(enum.Enum):
-    DISTANCE_BASED = 0
+    CONE_SIZE_BASED = 0
     COUNT_BASED = 1
-    TIMESTAMP_BASED = 2
-    CONE_SIZE_BASED = 3
+    DISTANCE_BASED = 2
+    TIMESTAMP_BASED = 3
 
     @staticmethod
     def get_subsample_modes_listing():
@@ -48,18 +48,18 @@ class CameraSubsampleMode(enum.Enum):
     @staticmethod
     def get_subsample_modes_help_message():
         msg_dict = {
-            CameraSubsampleMode.DISTANCE_BASED: "the frequency of plotting a camera cone is based on how far those "
-                                                "cones are, the minimum distance of two plotted camera cones is equal "
-                                                "to the subsampling factor",
-            CameraSubsampleMode.COUNT_BASED: "in this case, if the subsampling factor is 4 then a cone is display for "
-                                             "each 4 poses provided. If set to 1, then all cones are plotted",
-            CameraSubsampleMode.TIMESTAMP_BASED: "a camera cone is plotted when the time since the previous one"
-                                                 " is bigger then the subsampling factor, "
-                                                 "this uses the timestamps provided in the input text file",
             CameraSubsampleMode.CONE_SIZE_BASED: "the minimum distance of two plotted camera cones is equal to "
                                                  "subsampling factor multiplied by the camera size "
                                                  "(min_dist = factor * cone_size), this is the recommended subsampling"
-                                                 " mode to use with a factor of 2.5"
+                                                 " mode to use with a factor of 2.5",
+            CameraSubsampleMode.COUNT_BASED: "in this case, if the subsampling factor is 4 then a cone is display for "
+                                             "each 4 poses provided. If set to 1, then all cones are plotted",
+            CameraSubsampleMode.DISTANCE_BASED: "the frequency of plotting a camera cone is based on how far those "
+                                                "cones are, the minimum distance of two plotted camera cones is equal "
+                                                "to the subsampling factor",
+            CameraSubsampleMode.TIMESTAMP_BASED: "a camera cone is plotted when the time since the previous one"
+                                                 " is bigger then the subsampling factor, "
+                                                 "this uses the timestamps provided in the input text file",
         }
         msg = "available camera subsampling modes:\n\n"
         for s_mode in CameraSubsampleMode:
@@ -70,7 +70,9 @@ class CameraSubsampleMode(enum.Enum):
 HELP_INFO = {
     "cone_size": "the camera cone size determines the height of the cones plotted.\n"
                  "if this parameters is too big then only one cone will be shown.\n"
-                 "alternatively, if it is too small, then the plotted camera links will be too small to see.",
+                 "alternatively, if it is too small, then the plotted camera links will be too small to see.\n"
+                 "if unsure of the camera cone size then check automatic cone size estimation which works in most"
+                 " cases.",
     
     "subsample_factor": "plotting all camera cones of a trajectory, "
                         "can make it hard to see the real path of the camera. "
@@ -136,6 +138,7 @@ class Params:
         self.configuration = {
             "view_mode": ViewMode.CONES_AND_LINKS,
             "camera_cone_size": 0.012,
+            "automatic_cone_size": True,
             "camera_subsample_mode": CameraSubsampleMode.CONE_SIZE_BASED,
             "camera_subsample_factor": 2.5,
             "available_colormaps": {  # taken from https://webgradients.com/
@@ -154,6 +157,7 @@ class Params:
             "last_camera_color": "rgb(0,0,255)",
             "display_ascii_art": True,
             "links_size_ratio": 0.05,
+            "auto_cone_size_factor": 0.03,
             "use_gui": True,
             "version": _version.__version__,
         }
@@ -175,7 +179,10 @@ class Params:
         cfg = self.configuration
         print(f"input path: {self.input_path}")
         print(f"output path: {self.output_path}")
-        print(f"camera view mode: [{cfg['view_mode'].name}] | camera cone size: [{cfg['camera_cone_size']}]")
+        if cfg["automatic_cone_size"]:
+            print(f"camera view mode: [{cfg['view_mode'].name}] | automatic cone size estimation: [True]")
+        else:
+            print(f"camera view mode: [{cfg['view_mode'].name}] | camera cone size: [{cfg['camera_cone_size']}]")
         print(f"camera subsample mode: [{cfg['camera_subsample_mode'].name}] | "
               f"subsample factor: [{cfg['camera_subsample_factor']}]")
         print(f"used colormap : [{cfg['colormap_used'].upper()}]")
@@ -274,6 +281,8 @@ class Params:
             raise ValueError(err_msg + " 'display_ascii_art' is not a bool type")
         if not isinstance(config_dict["use_gui"], bool):
             raise ValueError(err_msg + " 'use_gui' is not a bool type")
+        if not isinstance(config_dict["automatic_cone_size"], bool):
+            raise ValueError(err_msg + " 'automatic_cone_size' is not a bool type")
         if not isinstance(config_dict["available_colormaps"], dict):
             raise ValueError(err_msg + " 'available_colormaps' is not a dict type")
         for colormap_key in config_dict["available_colormaps"]:
