@@ -27,6 +27,9 @@ class TrajectoryWorker(Qc.QObject):
             msg += f"number of camera cones plotted: {res['num_cones_plotted']}\n\n"
             if self.app_params.configuration["automatic_cone_size"]:
                 msg += f"estimated cone size: {res['used_cone_size']:g}\n"
+            rot = self.app_params.configuration["camera_rotation"]
+            if rot[0] != 0 or rot[1] != 0 or rot[2] != 0:
+                msg += f"camera rotation correction angles (deg): [x:{rot[0]:g}, y:{rot[1]:g}, z:{rot[2]:g}]\n"
             msg += res['trajectory_stats'].get_stats()
             self.app_params.save_to_config_file()
             self.show_msg.emit("Process finished successfully\n", msg, False)
@@ -56,6 +59,7 @@ class ViewerGui(Qw.QMainWindow):
         self.ui.setupUi(self)
         self.thread = None
         self.traj_saver = None
+        self.show_advanced_options = False
 
         self.setWindowTitle("SFM Viewer")
         self._style_app()
@@ -63,6 +67,7 @@ class ViewerGui(Qw.QMainWindow):
         self.update_ui_elements()
         self._connect_signals()
         # self.update_ui_elements()
+        self.resize(800, 520)
 
     def _connect_signals(self):
         info = config.HELP_INFO
@@ -72,15 +77,19 @@ class ViewerGui(Qw.QMainWindow):
         self.ui.btn_info_subsample_mode.clicked.connect(lambda: self.window_message(info["subsample_mode"], "Info"))
         self.ui.btn_info_subsample_factor.clicked.connect(lambda: self.window_message(info["subsample_factor"], "Info"))
         self.ui.btn_info_input.clicked.connect(lambda: self.window_message(info["input_path"], "Info"))
+        self.ui.btn_info_rot_correction.clicked.connect(lambda: self.window_message(info["rotation_angles"], "Info"))
+        self.ui.btn_info_links_size.clicked.connect(lambda: self.window_message(info["links_size"], "Info"))
+        self.ui.btn_info_auto_cone_size.clicked.connect(lambda: self.window_message(info["auto_cone_size"], "Info"))
 
         self.ui.btn_in_path.clicked.connect(self._look_for_input_path)
         self.ui.btn_out_path.clicked.connect(self._look_for_output_path)
         self.ui.btn_suggest_output.clicked.connect(self._suggest_output_path)
 
         self.ui.check_box_auto_cone.clicked.connect(self._automatic_cone_size_changed)
-        self.ui.combo_box_colormap.currentIndexChanged.connect(self._color_map_changed)
+        self.ui.combo_box_colormap.currentIndexChanged.connect(self._retrieve_and_update)
         self.ui.btn_first_color.clicked.connect(self._get_first_camera_color)
         self.ui.btn_last_color.clicked.connect(self._get_last_camera_color)
+        self.ui.check_box_show_advanced.clicked.connect(self._retrieve_and_update)
 
         self.ui.btn_ok.clicked.connect(self._run_trajectory_plot_algorithm)
         self.ui.btn_go_back.clicked.connect(self._go_back_to_main_window)
@@ -102,7 +111,8 @@ class ViewerGui(Qw.QMainWindow):
 
         self.i_info = ui_data.qt_icon_from_text_image(ui_data.INFO_ICON)
         for wid in [self.ui.btn_info_view_mode, self.ui.btn_info_cone_size, self.ui.btn_info_subsample_mode,
-                    self.ui.btn_info_subsample_factor, self.ui.btn_info_input]:
+                    self.ui.btn_info_subsample_factor, self.ui.btn_info_input, self.ui.btn_info_rot_correction,
+                    self.ui.btn_info_links_size, self.ui.btn_info_auto_cone_size]:
             wid.setIcon(self.i_info)
 
         self.i_save = ui_data.qt_icon_from_text_image(ui_data.SAVE_ICON)
@@ -121,6 +131,8 @@ class ViewerGui(Qw.QMainWindow):
         self.i_colors = ui_data.qt_icon_from_text_image(ui_data.COLORS_ICON)
         self.ui.btn_first_color.setIcon(self.i_colors)
         self.ui.btn_last_color.setIcon(self.i_colors)
+
+        self._set_css_class(self.ui.wid_advanced_options, "highlight")
 
     def _init(self):
         self.ui.line_edit_first_color.setReadOnly(True)
@@ -211,7 +223,7 @@ class ViewerGui(Qw.QMainWindow):
             print(f"could not parse last camera color from given color")
         self.update_ui_elements()
 
-    def _color_map_changed(self):
+    def _retrieve_and_update(self):
         self.retrieve_info_from_ui()
         self.update_ui_elements()
 
@@ -254,6 +266,17 @@ class ViewerGui(Qw.QMainWindow):
             c_map = color.ColorGradient(cfg["available_colormaps"][cfg["colormap_used"]])
         qt_gradient = c_map.generate_qt_gradient_str()
         self.ui.line_edit_view_color.setStyleSheet(f"background-color: {qt_gradient}")
+        self.ui.check_box_show_advanced.setChecked(self.show_advanced_options)
+        if self.show_advanced_options:
+            self.ui.wid_advanced_options.setHidden(False)
+        else:
+            self.ui.wid_advanced_options.setHidden(True)
+
+        self.ui.dspin_box_rot_x.setValue(cfg["camera_rotation"][0])
+        self.ui.dspin_box_rot_y.setValue(cfg["camera_rotation"][1])
+        self.ui.dspin_box_rot_z.setValue(cfg["camera_rotation"][2])
+        self.ui.dspin_box_link_size.setValue(cfg["links_size_ratio"])
+        self.ui.dspin_box_auto_cone_size.setValue(cfg["auto_cone_size_factor"])
 
     def retrieve_info_from_ui(self):
         self.app_params.input_path = self.ui.line_edit_in_path.text()
@@ -267,7 +290,13 @@ class ViewerGui(Qw.QMainWindow):
         cfg["colormap_used"] = self.ui.combo_box_colormap.currentText()
         cfg["first_camera_color"] = color.Color.parse_from_str(self.ui.line_edit_first_color.text()).to_str(True)
         cfg["last_camera_color"] = color.Color.parse_from_str(self.ui.line_edit_last_color.text()).to_str(True)
+        cfg["links_size_ratio"] = self.ui.dspin_box_link_size.value()
+        cfg["auto_cone_size_factor"] = self.ui.dspin_box_auto_cone_size.value()
+        cfg["camera_rotation"][0] = self.ui.dspin_box_rot_x.value()
+        cfg["camera_rotation"][1] = self.ui.dspin_box_rot_y.value()
+        cfg["camera_rotation"][2] = self.ui.dspin_box_rot_z.value()
         self.app_params.configuration = cfg
+        self.show_advanced_options = self.ui.check_box_show_advanced.isChecked()
 
     def _run_trajectory_plot_algorithm(self):
         self.retrieve_info_from_ui()

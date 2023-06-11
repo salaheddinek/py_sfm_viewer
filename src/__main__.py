@@ -78,6 +78,7 @@ def run_with_command_line(args, params):
     params.configuration["first_camera_color"] = first_color.to_str(True)
     params.configuration["last_camera_color"] = last_color.to_str(True)
     params.configuration["display_ascii_art"] = args.art
+    params.configuration["camera_rotation"] = args.rotation
 
     intro_print(args.art)
     params.process_output_path()
@@ -147,6 +148,8 @@ def main():
     parser.add_argument('-l', '--last_color', help='last camera color, both HEX and RGB formats are accepted'
                                                    ' (neglected if colormap is not set to custom)',
                         type=str, metavar='\b', default=params.configuration["last_camera_color"])
+    parser.add_argument('-r', '--rotation', help='Applied rotation angles according to x->y->z axis in degrees',
+                        nargs=3, type=float, metavar='\b', default=params.configuration["camera_rotation"])
     parser.add_argument('-a', '--art', help='Display ASCII art',
                         type=str2bool, metavar='\b', default=params.configuration["display_ascii_art"])
     args = parser.parse_args()
