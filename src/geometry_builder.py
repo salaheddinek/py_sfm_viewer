@@ -38,8 +38,10 @@ class GeometryBuilder:
         if len(self.poses) == 0:
             self.poses = viewer_io.TrajectoryLoader.load_poses_from_file_with_tum_format(self.params.input_path)
 
-        if len(self.poses) <= 1:
+        if len(self.poses) < 1:
             raise ValueError("number of poses must be superior to 1")
+
+        self._apply_rotation_correction_to_poses()
 
         stats = pose.TrajectoryStats(self.poses)
 
@@ -109,6 +111,26 @@ class GeometryBuilder:
     def _estimate_camera_cone_size(self, traj_stats):
         max_scene_distance = np.linalg.norm(traj_stats.bounding_box_max - traj_stats.bounding_box_min)
         self.cone_size_used = max_scene_distance * self.params.configuration["auto_cone_size_factor"]
+
+    def _apply_rotation_correction_to_poses(self):
+        rot_angles = self.params.configuration["camera_rotation"]
+        if rot_angles[0] == 0 and rot_angles[1] == 0 and rot_angles[2] == 0:
+            return
+        c1 = np.cos(rot_angles[0] * np.pi / 180.0)
+        s1 = np.sin(rot_angles[0] * np.pi / 180.0)
+        c2 = np.cos(rot_angles[1] * np.pi / 180.0)
+        s2 = np.sin(rot_angles[1] * np.pi / 180.0)
+        c3 = np.cos(rot_angles[2] * np.pi / 180.0)
+        s3 = np.sin(rot_angles[2] * np.pi / 180.0)
+        # apply rotation angle in the order x -> y -> z
+        rot_mat = np.array([[c2*c3, -c2*s3, s2],
+                            [c1*s3+c3*s1*s2, c1*c3-s1*s2*s3, -c2*s1],
+                            [s1*s3-c1*c3*s2, c3*s1+c1*s2*s3, c1*c2]])
+
+        for i, cam_pose in enumerate(self.poses):
+            new_pose = cam_pose
+            new_pose.transformation[0:3, 0:3] = new_pose.transformation[0:3, 0:3].dot(rot_mat)
+            self.poses[i] = new_pose
 
     def _make_camera_cone(self, camera_index):
         cam_color = self.camera_colors[camera_index]

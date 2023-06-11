@@ -16,15 +16,16 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
 from PySide6.QtWidgets import (QApplication, QCheckBox, QComboBox, QDoubleSpinBox,
-    QGridLayout, QGroupBox, QHBoxLayout, QLabel,
-    QLineEdit, QMainWindow, QPushButton, QSizePolicy,
-    QSpacerItem, QToolButton, QVBoxLayout, QWidget)
+    QFrame, QGridLayout, QGroupBox, QHBoxLayout,
+    QLabel, QLineEdit, QMainWindow, QPushButton,
+    QSizePolicy, QSpacerItem, QToolButton, QVBoxLayout,
+    QWidget)
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
-        MainWindow.resize(800, 600)
+        MainWindow.resize(800, 726)
         self.centralwidget = QWidget(MainWindow)
         self.centralwidget.setObjectName(u"centralwidget")
         self.verticalLayout_2 = QVBoxLayout(self.centralwidget)
@@ -246,6 +247,117 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_4.addWidget(self.groupBox_3)
 
+        self.check_box_show_advanced = QCheckBox(self.widget_main)
+        self.check_box_show_advanced.setObjectName(u"check_box_show_advanced")
+
+        self.verticalLayout_4.addWidget(self.check_box_show_advanced)
+
+        self.wid_advanced_options = QFrame(self.widget_main)
+        self.wid_advanced_options.setObjectName(u"wid_advanced_options")
+        self.wid_advanced_options.setFrameShape(QFrame.StyledPanel)
+        self.wid_advanced_options.setFrameShadow(QFrame.Raised)
+        self.gridLayout_5 = QGridLayout(self.wid_advanced_options)
+        self.gridLayout_5.setObjectName(u"gridLayout_5")
+        self.horizontalLayout_5 = QHBoxLayout()
+        self.horizontalLayout_5.setObjectName(u"horizontalLayout_5")
+        self.label_10 = QLabel(self.wid_advanced_options)
+        self.label_10.setObjectName(u"label_10")
+
+        self.horizontalLayout_5.addWidget(self.label_10)
+
+        self.dspin_box_rot_x = QDoubleSpinBox(self.wid_advanced_options)
+        self.dspin_box_rot_x.setObjectName(u"dspin_box_rot_x")
+        self.dspin_box_rot_x.setMinimum(-999.000000000000000)
+        self.dspin_box_rot_x.setMaximum(999.990000000000009)
+        self.dspin_box_rot_x.setSingleStep(90.000000000000000)
+
+        self.horizontalLayout_5.addWidget(self.dspin_box_rot_x)
+
+        self.label_11 = QLabel(self.wid_advanced_options)
+        self.label_11.setObjectName(u"label_11")
+
+        self.horizontalLayout_5.addWidget(self.label_11)
+
+        self.dspin_box_rot_y = QDoubleSpinBox(self.wid_advanced_options)
+        self.dspin_box_rot_y.setObjectName(u"dspin_box_rot_y")
+        self.dspin_box_rot_y.setMinimum(-999.000000000000000)
+        self.dspin_box_rot_y.setMaximum(999.990000000000009)
+        self.dspin_box_rot_y.setSingleStep(90.000000000000000)
+
+        self.horizontalLayout_5.addWidget(self.dspin_box_rot_y)
+
+        self.label_12 = QLabel(self.wid_advanced_options)
+        self.label_12.setObjectName(u"label_12")
+
+        self.horizontalLayout_5.addWidget(self.label_12)
+
+        self.dspin_box_rot_z = QDoubleSpinBox(self.wid_advanced_options)
+        self.dspin_box_rot_z.setObjectName(u"dspin_box_rot_z")
+        self.dspin_box_rot_z.setMinimum(-999.000000000000000)
+        self.dspin_box_rot_z.setMaximum(999.990000000000009)
+        self.dspin_box_rot_z.setSingleStep(90.000000000000000)
+
+        self.horizontalLayout_5.addWidget(self.dspin_box_rot_z)
+
+
+        self.gridLayout_5.addLayout(self.horizontalLayout_5, 0, 1, 1, 1)
+
+        self.dspin_box_link_size = QDoubleSpinBox(self.wid_advanced_options)
+        self.dspin_box_link_size.setObjectName(u"dspin_box_link_size")
+        self.dspin_box_link_size.setDecimals(3)
+        self.dspin_box_link_size.setMinimum(0.010000000000000)
+        self.dspin_box_link_size.setMaximum(999.990000000000009)
+        self.dspin_box_link_size.setSingleStep(0.010000000000000)
+
+        self.gridLayout_5.addWidget(self.dspin_box_link_size, 1, 1, 1, 1)
+
+        self.label_9 = QLabel(self.wid_advanced_options)
+        self.label_9.setObjectName(u"label_9")
+        sizePolicy1 = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.MinimumExpanding)
+        sizePolicy1.setHorizontalStretch(0)
+        sizePolicy1.setVerticalStretch(0)
+        sizePolicy1.setHeightForWidth(self.label_9.sizePolicy().hasHeightForWidth())
+        self.label_9.setSizePolicy(sizePolicy1)
+
+        self.gridLayout_5.addWidget(self.label_9, 0, 0, 1, 1)
+
+        self.label_14 = QLabel(self.wid_advanced_options)
+        self.label_14.setObjectName(u"label_14")
+
+        self.gridLayout_5.addWidget(self.label_14, 2, 0, 1, 1)
+
+        self.btn_info_rot_correction = QToolButton(self.wid_advanced_options)
+        self.btn_info_rot_correction.setObjectName(u"btn_info_rot_correction")
+
+        self.gridLayout_5.addWidget(self.btn_info_rot_correction, 0, 2, 1, 1)
+
+        self.btn_info_auto_cone_size = QToolButton(self.wid_advanced_options)
+        self.btn_info_auto_cone_size.setObjectName(u"btn_info_auto_cone_size")
+
+        self.gridLayout_5.addWidget(self.btn_info_auto_cone_size, 2, 2, 1, 1)
+
+        self.dspin_box_auto_cone_size = QDoubleSpinBox(self.wid_advanced_options)
+        self.dspin_box_auto_cone_size.setObjectName(u"dspin_box_auto_cone_size")
+        self.dspin_box_auto_cone_size.setDecimals(3)
+        self.dspin_box_auto_cone_size.setMinimum(0.010000000000000)
+        self.dspin_box_auto_cone_size.setMaximum(999.990000000000009)
+        self.dspin_box_auto_cone_size.setSingleStep(0.010000000000000)
+
+        self.gridLayout_5.addWidget(self.dspin_box_auto_cone_size, 2, 1, 1, 1)
+
+        self.label_13 = QLabel(self.wid_advanced_options)
+        self.label_13.setObjectName(u"label_13")
+
+        self.gridLayout_5.addWidget(self.label_13, 1, 0, 1, 1)
+
+        self.btn_info_links_size = QToolButton(self.wid_advanced_options)
+        self.btn_info_links_size.setObjectName(u"btn_info_links_size")
+
+        self.gridLayout_5.addWidget(self.btn_info_links_size, 1, 2, 1, 1)
+
+
+        self.verticalLayout_4.addWidget(self.wid_advanced_options)
+
 
         self.verticalLayout_2.addWidget(self.widget_main)
 
@@ -325,6 +437,16 @@ class Ui_MainWindow(object):
         self.label_7.setText(QCoreApplication.translate("MainWindow", u"First color", None))
         self.label_8.setText(QCoreApplication.translate("MainWindow", u"Last color", None))
         self.btn_last_color.setText(QCoreApplication.translate("MainWindow", u"Change color", None))
+        self.check_box_show_advanced.setText(QCoreApplication.translate("MainWindow", u"Show advanced options", None))
+        self.label_10.setText(QCoreApplication.translate("MainWindow", u"x:", None))
+        self.label_11.setText(QCoreApplication.translate("MainWindow", u"y:", None))
+        self.label_12.setText(QCoreApplication.translate("MainWindow", u"z:", None))
+        self.label_9.setText(QCoreApplication.translate("MainWindow", u"Camera rotation correction, euler angles in degrees:    ", None))
+        self.label_14.setText(QCoreApplication.translate("MainWindow", u"Auto cone size factor:", None))
+        self.btn_info_rot_correction.setText(QCoreApplication.translate("MainWindow", u"...", None))
+        self.btn_info_auto_cone_size.setText(QCoreApplication.translate("MainWindow", u"...", None))
+        self.label_13.setText(QCoreApplication.translate("MainWindow", u"Camera links size ratio:", None))
+        self.btn_info_links_size.setText(QCoreApplication.translate("MainWindow", u"...", None))
         self.label_msg_title.setText(QCoreApplication.translate("MainWindow", u"Message Title", None))
         self.label_msg_content.setText(QCoreApplication.translate("MainWindow", u"Message content", None))
         self.btn_ok.setText(QCoreApplication.translate("MainWindow", u"OK  ", None))

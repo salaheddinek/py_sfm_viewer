@@ -89,7 +89,18 @@ HELP_INFO = {
                   " the position of the frame, and [qc qy qz qw] represent its orientation in the form "
                   "of a quaternion.\n\nmore info can be found in the following link:\n\n"
                   "<a href='https://cvg.cit.tum.de/data/datasets/rgbd-dataset/file_formats'>"
-                  "https://cvg.cit.tum.de/data/datasets/rgbd-dataset/file_formats</a>"
+                  "https://cvg.cit.tum.de/data/datasets/rgbd-dataset/file_formats</a>",
+
+    "rotation_angles": "the euler angles (degrees) are turned into a rotation matrix (in the order 'xyz'); "
+                       "then all camera poses rotations are multiplied with this rotation matrix from the right:\n"
+                       "pose[0:3, 0:3] = pose[0:3, 0:3] * rot_matrix(euler_angles)\n"
+                       "this can be used to correct the orientation of camera cones without alternating the course"
+                       " of the trajectory",
+    "links_size": "camera links size ratio is used to calculate the size of the links between camera cones:\n"
+                  "link_size = camera_size * link_size_ratio",
+    "auto_cone_size": "auto cone size factor is used to calculate the camera cones,"
+                      " in the case of automatic estimation of cone size is set to True: \n"
+                      "cone_size = auto_cone_size_factor * length_of_trajectory_bounding_box",
 }
 
 
@@ -130,6 +141,14 @@ class DataConsistency:
         else:
             color.ColorGradient(in_c)
 
+    @staticmethod
+    def check_rotation_angles(in_data):
+        if not isinstance(in_data, list):
+            raise TypeError(f"expect a list of 3 floats for rotation angles 'xyz', {in_data} is a {type(in_data)}")
+        elif len(in_data) != 3:
+            raise ValueError(f"expect a list of 3 floats for rotation angles 'xyz', "
+                             f"length of provided list is {len(in_data)}")
+
 
 class Params:
     def __init__(self, input_path="", output_path=""):
@@ -155,6 +174,7 @@ class Params:
             "colormap_used": "aqua_splash",
             "first_camera_color": "rgb(255,0,0)",
             "last_camera_color": "rgb(0,0,255)",
+            "camera_rotation": [0.0, 0.0, 0.0],
             "display_ascii_art": True,
             "links_size_ratio": 0.05,
             "auto_cone_size_factor": 0.03,
@@ -188,6 +208,9 @@ class Params:
         print(f"used colormap : [{cfg['colormap_used'].upper()}]")
         if cfg["colormap_used"] == "custom":
             print(f"camera color:  first={cfg['first_camera_color']}  =>  last={cfg['last_camera_color']}")
+        rot = cfg["camera_rotation"]
+        if rot[0] != 0 or rot[1] != 0 or rot[2] != 0:
+            print(f"camera rotation correction angles (deg): [x:{rot[0]:g}, y:{rot[1]:g}, z:{rot[2]:g}]")
 
     def update_used_colormap(self, cmap_choice):
         choice = cmap_choice.strip().lower().replace(" ", "_")
@@ -273,10 +296,15 @@ class Params:
             DataConsistency.check_positive_float("camera_cone_size", config_dict["camera_cone_size"])
             DataConsistency.check_positive_float("camera_subsample_factor", config_dict["camera_subsample_factor"])
             DataConsistency.check_positive_float("links_size_ratio", config_dict["links_size_ratio"])
+            DataConsistency.check_positive_float("auto_cone_size_factor", config_dict["auto_cone_size_factor"])
             DataConsistency.check_color(config_dict["first_camera_color"])
             DataConsistency.check_color(config_dict["last_camera_color"])
+            DataConsistency.check_rotation_angles(config_dict["camera_rotation"])
         except ValueError as err:
             raise ValueError(err_msg + " " + str(err))
+        except TypeError as err:
+            raise TypeError(err_msg + " " + str(err))
+
         if not isinstance(config_dict["display_ascii_art"], bool):
             raise ValueError(err_msg + " 'display_ascii_art' is not a bool type")
         if not isinstance(config_dict["use_gui"], bool):
@@ -292,8 +320,9 @@ class Params:
                 DataConsistency.check_color_gradient(config_dict["available_colormaps"][colormap_key])
             except ValueError as err:
                 raise ValueError(err_msg + " " + str(err))
+            except TypeError as err:
+                raise TypeError(err_msg + " " + str(err))
 
         if config_dict["colormap_used"] != "custom" and \
                 config_dict["colormap_used"] not in config_dict["available_colormaps"]:
             raise ValueError(f"{err_msg} {config_dict['colormap_used']} is not a valid colormap choice")
-
