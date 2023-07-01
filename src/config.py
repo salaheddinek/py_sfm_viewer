@@ -271,7 +271,10 @@ class Params:
 
     @staticmethod
     def delete_config_file_if_exists():
-        Params.get_config_file_path().unlink(missing_ok=True)
+        try:
+            Params.get_config_file_path().unlink(missing_ok=True)
+        except OSError as err:
+            print(f"Warning: could not delete old config file, err: {err}")
 
     def available_color_maps(self):
         msg = "custom, ".upper()
