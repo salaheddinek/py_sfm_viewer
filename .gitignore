@@ -1,5 +1,6 @@
 data/*.ply
 bundle_tools/
+.vscode/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
