@@ -95,7 +95,7 @@ def main():
 
     # ----+ compress package -----+
     print("compressing app files ...")
-    compress_folder(deploy_path, deploy_parent_path / (name_w_version + "_windows_x64.zip"))
+    compress_folder(deploy_path, deploy_parent_path / (name_w_version + "_windows_x64_w_interpreter.zip"))
     print("finished !")
 
 

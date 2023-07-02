@@ -110,7 +110,7 @@ To achieve this, follow these steps:
 
 * Step 1: download the latest release for the OS you use, using the following link: [https://github.com/salaheddinek/py_sfm_viewer/releases/latest](https://github.com/salaheddinek/py_sfm_viewer/releases/latest).
 * Step 2: decompress the downloaded file.
-* Step 3: launch by running the script `start_sfm_viewer.bat` for Windows, or by running `start_sfm_viewer.sh` for Linux.
+* Step 3: launch by running `sfm_viewer.exe` for Windows, or by running the script `start_sfm_viewer.sh` for Linux.
 
 # Data format
 
