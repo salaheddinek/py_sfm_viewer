@@ -51,11 +51,13 @@ if __name__ == '__main__':
 
     app_name = get_app_full_name(src_path / "_version.py", args.add_suffix) + ".pyz"
 
+    bundled_app_path = deploy_path / app_name
+
     if deploy_path.is_dir():
         shutil.rmtree(str(deploy_path))
     deploy_path.mkdir(parents=True)
 
-    zipapp.create_archive(src_path, str(deploy_path / app_name), '/usr/bin/python3',
+    zipapp.create_archive(src_path, str(bundled_app_path), '/usr/bin/python3',
                           filter=is_file_accepted)
 
-    print(f"wrapping finished! Output file: {app_name}")
+    print(f"wrapping finished! Output file: {str(bundled_app_path)}")

@@ -230,14 +230,14 @@ class Params:
         config_path = self.get_config_file_path()
         if not config_path.is_file():
             return
-        with config_path.open("r") as file_obj:
-            try:
+        try:
+            with config_path.open("r") as file_obj:
                 new_config = json.load(file_obj)
                 self.check_configuration_consistency(new_config)
-            except ValueError as err:
-                print(f"{str(err)}, loading config from disk aborted")
-                self.delete_config_file_if_exists()
-                return
+        except ValueError as err:
+            print(f"{str(err)}, loading config from disk aborted")
+            self.delete_config_file_if_exists()
+            return
         new_config["colormap_used"] = new_config["colormap_used"].strip().lower().replace(" ", "_")
         colormaps = new_config["available_colormaps"]
         new_colormaps = {}
