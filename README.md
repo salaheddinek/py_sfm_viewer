@@ -39,13 +39,15 @@ If you use this library, please cite our paper as shown below:
 
 In the following we present the documentation of the library:
 
-- [Before launching](#before-launching)
-  - [Regular use](#regular-use)
-  - [Run as a script](#run-as-a-script)
+- [How to use?](#how-to-use)
+  - [I have Python installed](#i-have-python-installed)
+  - [I want to use it without any installation](#i-want-to-use-it-without-any-installation)
 
 - [Data format](#data-format)
 
 - [Usage Parameters](#usage-parameters)
+
+- [Camera orientation](#camera-orientation)
 
 - [Meshlab](#meshlab)
 
@@ -53,7 +55,12 @@ In the following we present the documentation of the library:
 
 - [Special thanks](#special-thanks)
 
-# Before launching
+# How to use?
+
+There are two ways to run the application, one depends on having Python. 
+And one allows running the application as standalone without any installation:
+
+## I have Python installed
 
 Before running the application, `numpy` needs to be installed first. Also, installing `PySide6` is highly recommended to run the user interface. Otherwise, the application can also be launched via command line.
 
@@ -67,7 +74,7 @@ python3 -m pip install pyside6  # recommended
 python3 -m pip install pyside6==6.2.3
 ```
 
-## Regular use
+### Regular use
 
 The application can be launched by running the following command line:
 
@@ -83,7 +90,7 @@ python3 src/__main__.py --gui off --input data/traj_150_small_walk.txt --cone_si
 
 However, we advise using the next method to run the application.
   
-## Run as a script
+### Run as a script
 
 All the file dependencies can be wrapped in a single file (except `numpy` and `pyside6`). 
 This includes the application theme, icons and font. 
@@ -95,6 +102,15 @@ python3 bundle/bundle_using_zipapp.py
 ```
 
 Alternatively, the bundled application can be downloaded from this [link](https://github.com/salaheddinek/py_sfm_viewer/releases/latest).
+
+## I want to use it without any installation
+
+The application can also be launched without any prior installation.
+To achieve this, follow these steps:
+
+* Step 1: download the latest release for the OS you use, using the following link: [https://github.com/salaheddinek/py_sfm_viewer/releases/latest](https://github.com/salaheddinek/py_sfm_viewer/releases/latest).
+* Step 2: decompress the downloaded file.
+* Step 3: launch by running the script `start_sfm_viewer.bat` for Windows, or by running `start_sfm_viewer.sh` for Linux.
 
 # Data format
 
@@ -130,7 +146,16 @@ The following image show the user interface (app version 2.2.3):
 <img src="images/gui_example.png" />
 </p>
 
+# Camera orientation
 
+Camera orientation by default is directed toward the z-axis. 
+It is worth mentioning that the top of the camera is facing the opposite direction of the y-axis,
+this choice has been made to accommodate the fact that most image analysis programs inverse the y-axis while indexing pixels in an image. 
+In other words, the bottom left pixel on an image has a positive **y** coordinate.
+
+The default orientation of the camera can be changed by applying the same rotation to all camera cones. 
+To achieve this, use the command line argument `--rotation`,
+or via the GUI by selecting **show advanced options**.
 
 # Meshlab
 
