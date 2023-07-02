@@ -4,8 +4,7 @@ import shutil
 import re
 import pathlib
 import zipfile
-import argparse
-import zipapp
+import PyInstaller.__main__
 
 
 APP_NAME = "sfm_viewer"
@@ -28,22 +27,6 @@ def get_app_full_name(i_version_file_path):
     return name
 
 
-def check_embedded_python_file(in_path: pathlib.Path):
-    if not in_path.is_dir():
-        return False
-    interpreter_path = in_path / "python.exe"
-    print(interpreter_path)
-    if not interpreter_path.is_file():
-        return False
-    return True
-
-
-def create_bat_script(script_path, embedded_python_path):
-    content = f"@echo off\n%~dp0{embedded_python_path.name}\\python.exe %~dp0{APP_NAME}.pyz %*"
-    with script_path.open("w") as file_obj:
-        file_obj.write(content)
-
-
 def compress_folder(src_path, dst_path):
     # compression method comparison :
     # https://stackoverflow.com/questions/4166447/python-zipfile-module-doesnt-seem-to-be-compressing-my-files
@@ -51,47 +34,33 @@ def compress_folder(src_path, dst_path):
         for content in src_path.rglob("*"):
             if "__pycache__" in content.parts:
                 continue
-            archive.write(content, content.relative_to(src_path.parent))
+            archive.write(content, content.relative_to(src_path))
+
+
+def deploy_command(i_deploy_path, i_src_path, i_build_path, i_icon_path):
+    cmd = [str(i_src_path), "-n", APP_NAME, "--clean", "--distpath", str(i_deploy_path),
+           "--workpath", str(i_build_path / "build"), "--specpath", str(i_build_path), "-i", str(i_icon_path)]
+    # print("Build command:\n\n{}\n\n".format(" ".join(cmd)) )
+    PyInstaller.__main__.run(cmd)
 
 
 def main():
-    parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter,
-                                     description='Bundle the project files into one python file (pyz file), and '
-                                                 'provide an embedded python interpreter with the needed packages, so '
-                                                 'that the application can be run without any installations.')
-    parser.add_argument('-e', '--embedded_python', help='path to embedded python interpreter folder',
-                        type=str, metavar='\b', required=True)
-    args = parser.parse_args()
-    src_python_path = pathlib.Path(args.embedded_python)
-    if not check_embedded_python_file(src_python_path):
-        print("ERROR: provided embedded python folder is in wrong format: " + str(src_python_path))
-        exit(1)
-
     # ----+ paths and names -----+
     main_path = pathlib.Path(sys.modules['__main__'].__file__).parents[1]
     name_w_version = get_app_full_name(main_path / 'src' / "_version.py")
-    src_path = main_path / 'src'
+    src_path = main_path / 'src' / '__main__.py'
+    icon_path = main_path / 'images' / 'sfm_viewer.ico'
     deploy_parent_path = main_path / 'deploy'
-    deploy_path = deploy_parent_path / name_w_version
-    batch_script_path = deploy_path / f"start_{APP_NAME}.bat"
-    dst_python_path = deploy_path / "python_embedded_amd64"
+    deploy_path = deploy_parent_path / APP_NAME
 
     # ----+ deployment folder creation -----+
     print("Deployment path: {}".format(deploy_path))
     if deploy_parent_path.is_dir():
         shutil.rmtree(deploy_parent_path)
-    deploy_path.mkdir(parents=True)
+    deploy_parent_path.mkdir(parents=True)
 
-    print("creating script using zip_app ...")
-    zipapp.create_archive(src_path, str(deploy_path / (APP_NAME + ".pyz")), '/usr/bin/python3',
-                          filter=is_file_accepted)
-
-    print("copying embedded python folder ...")
-    shutil.copytree(str(src_python_path), str(dst_python_path), symlinks=True, ignore=None,
-                    copy_function=shutil.copy2, ignore_dangling_symlinks=False, dirs_exist_ok=False)
-
-    print("creating launch script ...")
-    create_bat_script(batch_script_path, dst_python_path)
+    # ----+ freeze command -----+
+    deploy_command(deploy_path, src_path, deploy_parent_path, icon_path)
 
     # ----+ compress package -----+
     print("compressing app files ...")
