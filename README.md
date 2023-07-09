@@ -11,11 +11,11 @@ Some feature of the **py_sfm_viewer** library:
 
 * **Command line and GUI**: the package can be used via command line, or can be run  with a user interface.
 
-* **Gradiant colors**: the library uses a gradient between two (or more) colors in order to make it easy to distinguish between the start and the end of the trajectory.
+* **Gradient colors**: the library uses a gradient between two (or more) colors in order to make it easy to distinguish between the start and the end of the trajectory.
 
 * **Lightweight**: the python package can be wrapped in a single file, and can be run as a script from anywhere.
 
-* **Small number of dependencies**: the library only depends on numpy (and optionally PySide6 for the user interface).
+* **Small number of dependencies**: the library only depends on Numpy (and optionally PySide6 for the user interface).
 
 * **Cross-platform**: can be used on Linux and Windows.
 
@@ -68,7 +68,7 @@ Before running the application, `numpy` needs to be installed first. Also, insta
 python3 -m pip install numpy
 python3 -m pip install pyside6  # recommended
 ```
-**Warning:** in older OS versions (like ubuntu 20.04LTS) the latest `PySide6` does not work. So an older version needs to be installed:
+**Warning:** in older OS versions (like Ubuntu 20.04LTS) the latest `PySide6` does not work. So an older version needs to be installed:
 
 ```commandline
 python3 -m pip install pyside6==6.2.3
@@ -110,14 +110,16 @@ To achieve this, follow these steps:
 
 * Step 1: download the latest release for the OS you use, using the following link: [https://github.com/salaheddinek/py_sfm_viewer/releases/latest](https://github.com/salaheddinek/py_sfm_viewer/releases/latest).
 * Step 2: decompress the downloaded file.
-* Step 3: launch by running `sfm_viewer.exe` for Windows, or by running the script `start_sfm_viewer.sh` for Linux.
+* Step 3: for Linux users, run the script `start_sfm_viewer.sh`. 
+For Windows users, use `python.exe` to launch `sfm_viewer.pyz`,
+by following the instructions described in `HOW_TO_USE.txt`
 
 # Data format
 
 The application reads the camera poses from a '.txt' file, that contains the trajectory in the TUM format:
 
 Each line is in the form of `[timestamp tx ty tz qx qy qz qw]`. Where` [tx ty tz]` represents the position of the frame,
-and `[qc qy qz qw]` represent its orientation in the form of a quaternion. more info can be found in the following link:
+and `[qc qy qz qw]` represent its orientation in the form of a quaternion. More info can be found in the following link:
 
 [https://cvg.cit.tum.de/data/datasets/rgbd-dataset/file_formats](https://cvg.cit.tum.de/data/datasets/rgbd-dataset/file_formats)
 
@@ -132,7 +134,7 @@ python3 py_sfm_viewer.pyz --help
 Or by clicking on the info buttons in the user interface (buttons with the icon 'i').
 
 The parameters allow the user to control the size of the plotted camera cones, its colors. 
-How ofter the camera cones are plotted (subsampling).
+How often the camera cones are plotted (subsampling).
 
 The following image show different colormaps used to plot the same trajectory:
 
@@ -160,7 +162,7 @@ or via the GUI by selecting **show advanced options**.
 # Meshlab
 
 Meshlab ([https://www.meshlab.net/](https://www.meshlab.net/)) is an open source system for processing and editing 3D triangular meshes.
-It can read and render multiple 3D file formats include '.ply' used by our library. 
+It can read and render multiple 3D file formats, including '.ply' files used by our library. 
 
 The following figure shows a simple way to view the camera trajectory alongside with the 3D surface data reconstructed from the same set of camera frames:
 
@@ -170,7 +172,7 @@ The following figure shows a simple way to view the camera trajectory alongside 
 
 # License
 
-We use a permissive BSD-3-Clause License  which allows easy integration of our library in any project ever if it is closed source. 
+We use a permissive BSD-3-Clause License, which allows easy integration of our library in any project ever if it is closed source. 
 However, we motivate other developers to contribute to this open source project.
 
 # Special thanks

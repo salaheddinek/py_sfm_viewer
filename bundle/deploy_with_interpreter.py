@@ -10,6 +10,28 @@ import zipapp
 
 APP_NAME = "sfm_viewer"
 
+HELPER_CONTENT = """How to use:
+-----------
+
+The project's code is bundled in '{name}.pyz', please use 'python.exe' in the directory '{embedded}' \
+in order to launch the application. 
+To facilitate this procedure, we advise following these steps:
+
+1. open Windows notepad (or your favorite text editor).
+
+2. copy and past the following 3 lines of code:
+
+@echo off
+set current_dir = %~dp0
+%current_dir%{embedded}\\python.exe %current_dir%{name}.pyz %*
+
+3. save as 'launch_{name}.bat' in the same directory as this file ({helper_file}). Make sure that you do not save the \
+file as 'launch_{name}.txt' or 'launch_{name}.bat.txt', otherwise the application will not launch.
+
+4. double click 'launch_{name}.bat'.
+
+"""
+
 
 def is_file_accepted(i_file_path):
     if i_file_path.suffix == ".py":
@@ -38,9 +60,10 @@ def check_embedded_python_file(in_path: pathlib.Path):
     return True
 
 
-def create_bat_script(script_path, embedded_python_path):
-    content = f"@echo off\n%~dp0{embedded_python_path.name}\\python.exe %~dp0{APP_NAME}.pyz %*"
-    with script_path.open("w") as file_obj:
+def create_execution_helper(helper_path, embedded_python_path):
+    content = HELPER_CONTENT.format(name=APP_NAME, embedded=embedded_python_path.name, helper_file=helper_path.name)
+
+    with helper_path.open("w") as file_obj:
         file_obj.write(content)
 
 
@@ -73,7 +96,7 @@ def main():
     src_path = main_path / 'src'
     deploy_parent_path = main_path / 'deploy'
     deploy_path = deploy_parent_path / name_w_version
-    batch_script_path = deploy_path / f"start_{APP_NAME}.bat"
+    helper_txt_path = deploy_path / "HOW_TO_USE.txt"
     dst_python_path = deploy_path / "python_embedded_amd64"
 
     # ----+ deployment folder creation -----+
@@ -91,7 +114,7 @@ def main():
                     copy_function=shutil.copy2, ignore_dangling_symlinks=False, dirs_exist_ok=False)
 
     print("creating launch script ...")
-    create_bat_script(batch_script_path, dst_python_path)
+    create_execution_helper(helper_txt_path, dst_python_path)
 
     # ----+ compress package -----+
     print("compressing app files ...")
